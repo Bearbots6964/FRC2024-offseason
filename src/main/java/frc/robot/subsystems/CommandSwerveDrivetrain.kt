@@ -24,51 +24,34 @@ class CommandSwerveDrivetrain : SwerveDrivetrain, Subsystem {
     private var lastSimTime = 0.0
 
     /* Blue alliance sees forward as 0 degrees (toward red alliance wall) */
-    private val BlueAlliancePerspectiveRotation: Rotation2d = Rotation2d.fromDegrees(0.0)
+    private val blueAlliancePerspectiveRotation: Rotation2d = Rotation2d.fromDegrees(0.0)
 
     /* Red alliance sees forward as 180 degrees (toward blue alliance wall) */
-    private val RedAlliancePerspectiveRotation: Rotation2d = Rotation2d.fromDegrees(180.0)
+    private val redAlliancePerspectiveRotation: Rotation2d = Rotation2d.fromDegrees(180.0)
 
     /* Keep track if we've ever applied the operator perspective before or not */
     private var hasAppliedOperatorPerspective = false
 
     constructor(
         driveTrainConstants: SwerveDrivetrainConstants,
-        OdometryUpdateFrequency: Double,
-        vararg modules: SwerveModuleConstants?
-    ) : super(driveTrainConstants, OdometryUpdateFrequency, *modules) {
-        if (Utils.isSimulation()) {
-            startSimThread()
-        }
+        odometryUpdateFrequency: Double,
+        vararg modules: SwerveModuleConstants?,
+    ) : super(driveTrainConstants, odometryUpdateFrequency, *modules) {
+
     }
 
     constructor(driveTrainConstants: SwerveDrivetrainConstants, vararg modules: SwerveModuleConstants?) : super(
         driveTrainConstants,
-        *modules
+        *modules,
     ) {
-        if (Utils.isSimulation()) {
-            startSimThread()
-        }
+
     }
 
     fun applyRequest(requestSupplier: Supplier<SwerveRequest?>): Command {
         return run { this.setControl(requestSupplier.get()) }
     }
 
-    private fun startSimThread() {
-        lastSimTime = Utils.getCurrentTimeSeconds()
 
-        /* Run simulation at a faster rate so PID gains behave more reasonably */
-        simNotifier = Notifier {
-            val currentTime = Utils.getCurrentTimeSeconds()
-            val deltaTime = currentTime - lastSimTime
-            lastSimTime = currentTime
-
-            /* use the measured time delta, get battery voltage from WPILib */
-            updateSimState(deltaTime, RobotController.getBatteryVoltage())
-        }
-        simNotifier!!.startPeriodic(simLoopPeriod)
-    }
 
     override fun periodic() {
         /* Periodically try to apply the operator perspective */
@@ -80,9 +63,9 @@ class CommandSwerveDrivetrain : SwerveDrivetrain, Subsystem {
             DriverStation.getAlliance().ifPresent { allianceColor: Alliance ->
                 this.setOperatorPerspectiveForward(
                     if (allianceColor == Alliance.Red)
-                        RedAlliancePerspectiveRotation
+                        redAlliancePerspectiveRotation
                     else
-                        BlueAlliancePerspectiveRotation
+                        blueAlliancePerspectiveRotation
                 )
                 hasAppliedOperatorPerspective = true
             }
