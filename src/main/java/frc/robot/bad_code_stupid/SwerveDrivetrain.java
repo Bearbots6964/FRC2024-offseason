@@ -84,7 +84,6 @@ public class SwerveDrivetrain {
 
   protected final ReadWriteLock m_stateLock = new ReentrantReadWriteLock();
 
-  protected final SimSwerveDrivetrain m_simDrive;
 
   /**
    * Plain-Old-Data class holding the state of the swerve drivetrain.
@@ -149,8 +148,8 @@ public class SwerveDrivetrain {
         m_allSignals[(i * 4) + 2] = signals[2];
         m_allSignals[(i * 4) + 3] = signals[3];
       }
-      m_allSignals[m_allSignals.length - 2] = m_yawGetter;
-      m_allSignals[m_allSignals.length - 1] = m_angularVelocity;
+      m_allSignals[m_allSignals.length - 2] = (BaseStatusSignal) m_yawGetter;
+      m_allSignals[m_allSignals.length - 1] = (BaseStatusSignal) m_angularVelocity;
     }
 
     /**
@@ -221,8 +220,7 @@ public class SwerveDrivetrain {
             m_modulePositions[i] = Modules[i].getPosition(false);
             m_moduleStates[i] = Modules[i].getCurrentState();
           }
-          double yawDegrees = BaseStatusSignal.getLatencyCompensatedValue(
-              m_yawGetter, m_angularVelocity);
+          double yawDegrees = m_yawGetter.get();
 
           /* Keep track of previous and current pose to account for the carpet vector */
           m_odometry.update(Rotation2d.fromDegrees(yawDegrees), m_modulePositions);
@@ -392,7 +390,6 @@ public class SwerveDrivetrain {
     m_fieldRelativeOffset = new Rotation2d();
     m_operatorForwardDirection = new Rotation2d();
 
-    m_simDrive = new SimSwerveDrivetrain(m_moduleLocations, m_pigeon2, driveTrainConstants, modules);
 
     IsOnCANFD = checkIsOnCanFD(driveTrainConstants.CANbusName);
     if (OdometryUpdateFrequency == 0) {
@@ -459,7 +456,7 @@ public class SwerveDrivetrain {
         Modules[i].resetPosition();
         m_modulePositions[i] = Modules[i].getPosition(true);
       }
-      m_odometry.resetPosition(Rotation2d.fromDegrees(m_yawGetter.getValue()), m_modulePositions, new Pose2d());
+      m_odometry.resetPosition(Rotation2d.fromDegrees(m_yawGetter.get()), m_modulePositions, new Pose2d());
     } finally {
       m_stateLock.writeLock().unlock();
     }
@@ -505,7 +502,7 @@ public class SwerveDrivetrain {
     try {
       m_stateLock.writeLock().lock();
 
-      m_odometry.resetPosition(Rotation2d.fromDegrees(m_yawGetter.getValue()), m_modulePositions, location);
+      m_odometry.resetPosition(Rotation2d.fromDegrees(m_yawGetter.get()), m_modulePositions, location);
       /* We need to update our cached pose immediately so that race conditions don't happen */
       m_cachedState.Pose = location;
     } finally {
@@ -689,16 +686,7 @@ public class SwerveDrivetrain {
     }
   }
 
-  /**
-   * Updates all the simulation state variables for this
-   * drivetrain class. User provides the update variables for the simulation.
-   *
-   * @param dtSeconds time since last update call
-   * @param supplyVoltage voltage as seen at the motor controllers
-   */
-  public void updateSimState(double dtSeconds, double supplyVoltage) {
-    m_simDrive.update(dtSeconds, supplyVoltage, Modules);
-  }
+
 
 
   /**
