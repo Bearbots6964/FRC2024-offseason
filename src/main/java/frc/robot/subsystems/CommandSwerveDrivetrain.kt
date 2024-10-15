@@ -18,24 +18,25 @@ import java.util.function.Supplier
  * Class that extends the Phoenix SwerveDrivetrain class and implements
  * subsystem so it can be used in command-based projects easily.
  */
+@Suppress("ConstPropertyName")
 class CommandSwerveDrivetrain : SwerveDrivetrain, Subsystem {
-    private var m_simNotifier: Notifier? = null
-    private var m_lastSimTime = 0.0
+    private var simNotifier: Notifier? = null
+    private var lastSimTime = 0.0
 
     /* Blue alliance sees forward as 0 degrees (toward red alliance wall) */
-    private val BlueAlliancePerspectiveRotation: Rotation2d = Rotation2d.fromDegrees(0.0)
+    private val blueAlliancePerspectiveRotation: Rotation2d = Rotation2d.fromDegrees(0.0)
 
     /* Red alliance sees forward as 180 degrees (toward blue alliance wall) */
-    private val RedAlliancePerspectiveRotation: Rotation2d = Rotation2d.fromDegrees(180.0)
+    private val redAlliancePerspectiveRotation: Rotation2d = Rotation2d.fromDegrees(180.0)
 
     /* Keep track if we've ever applied the operator perspective before or not */
     private var hasAppliedOperatorPerspective = false
 
     constructor(
         driveTrainConstants: SwerveDrivetrainConstants,
-        OdometryUpdateFrequency: Double,
-        vararg modules: SwerveModuleConstants?
-    ) : super(driveTrainConstants, OdometryUpdateFrequency, *modules) {
+        odometryUpdateFrequency: Double,
+        vararg modules: SwerveModuleConstants?,
+    ) : super(driveTrainConstants, odometryUpdateFrequency, *modules) {
         if (Utils.isSimulation()) {
             startSimThread()
         }
@@ -43,7 +44,7 @@ class CommandSwerveDrivetrain : SwerveDrivetrain, Subsystem {
 
     constructor(driveTrainConstants: SwerveDrivetrainConstants, vararg modules: SwerveModuleConstants?) : super(
         driveTrainConstants,
-        *modules
+        *modules,
     ) {
         if (Utils.isSimulation()) {
             startSimThread()
@@ -55,18 +56,18 @@ class CommandSwerveDrivetrain : SwerveDrivetrain, Subsystem {
     }
 
     private fun startSimThread() {
-        m_lastSimTime = Utils.getCurrentTimeSeconds()
+        lastSimTime = Utils.getCurrentTimeSeconds()
 
         /* Run simulation at a faster rate so PID gains behave more reasonably */
-        m_simNotifier = Notifier {
+        simNotifier = Notifier {
             val currentTime = Utils.getCurrentTimeSeconds()
-            val deltaTime = currentTime - m_lastSimTime
-            m_lastSimTime = currentTime
+            val deltaTime = currentTime - lastSimTime
+            lastSimTime = currentTime
 
             /* use the measured time delta, get battery voltage from WPILib */
             updateSimState(deltaTime, RobotController.getBatteryVoltage())
         }
-        m_simNotifier!!.startPeriodic(kSimLoopPeriod)
+        simNotifier!!.startPeriodic(simLoopPeriod)
     }
 
     override fun periodic() {
@@ -79,9 +80,9 @@ class CommandSwerveDrivetrain : SwerveDrivetrain, Subsystem {
             DriverStation.getAlliance().ifPresent { allianceColor: Alliance ->
                 this.setOperatorPerspectiveForward(
                     if (allianceColor == Alliance.Red)
-                        RedAlliancePerspectiveRotation
+                        redAlliancePerspectiveRotation
                     else
-                        BlueAlliancePerspectiveRotation
+                        blueAlliancePerspectiveRotation
                 )
                 hasAppliedOperatorPerspective = true
             }
@@ -89,6 +90,6 @@ class CommandSwerveDrivetrain : SwerveDrivetrain, Subsystem {
     }
 
     companion object {
-        private const val kSimLoopPeriod = 0.005 // 5 ms
+        private const val simLoopPeriod = 0.005 // 5 ms
     }
 }
