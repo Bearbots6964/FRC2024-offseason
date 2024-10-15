@@ -4,7 +4,7 @@
 package frc.robot
 
 import com.ctre.phoenix6.Utils
-import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain.SwerveDriveState
+import frc.robot.bad_code_stupid.SwerveDrivetrain.SwerveDriveState
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest.*
 import edu.wpi.first.math.geometry.Pose2d
