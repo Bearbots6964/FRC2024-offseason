@@ -4,7 +4,7 @@
 package frc.robot
 
 import com.ctre.phoenix6.Utils
-import frc.robot.bad_code_stupid.SwerveDrivetrain.SwerveDriveState
+import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest.*
@@ -80,7 +80,7 @@ class RobotContainer {
         if (Utils.isSimulation()) {
             drivetrain.seedFieldRelative(Pose2d(Translation2d(), Rotation2d.fromDegrees(90.0)))
         }
-        drivetrain.registerTelemetry { state: SwerveDriveState -> logger.telemeterize(state) }
+        drivetrain.registerTelemetry { state: SwerveDrivetrain.SwerveDriveState -> logger.telemeterize(state) }
     }
 
 

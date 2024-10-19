@@ -1,7 +1,7 @@
 package frc.robot
 
 import com.ctre.phoenix6.Utils
-import frc.robot.bad_code_stupid.SwerveDrivetrain.SwerveDriveState
+import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.networktables.*
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d
@@ -64,7 +64,7 @@ class Telemetry
     )
 
     /* Accept the swerve drive state and telemeterize it to smartdashboard */
-    fun telemeterize(state: SwerveDriveState) {
+    fun telemeterize(state: SwerveDrivetrain.SwerveDriveState) {
         /* Telemeterize the pose */
         val pose = state.Pose
         fieldTypePub.set("Field2d")
