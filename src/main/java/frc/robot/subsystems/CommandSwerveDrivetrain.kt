@@ -1,7 +1,7 @@
 package frc.robot.subsystems
 
 import com.ctre.phoenix6.Utils
-import frc.robot.bad_code_stupid.SwerveDrivetrain
+import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrainConstants
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModuleConstants
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest
@@ -18,40 +18,56 @@ import java.util.function.Supplier
  * Class that extends the Phoenix SwerveDrivetrain class and implements
  * subsystem so it can be used in command-based projects easily.
  */
-@Suppress("ConstPropertyName")
 class CommandSwerveDrivetrain : SwerveDrivetrain, Subsystem {
-    private var simNotifier: Notifier? = null
-    private var lastSimTime = 0.0
+    private var m_simNotifier: Notifier? = null
+    private var m_lastSimTime = 0.0
 
     /* Blue alliance sees forward as 0 degrees (toward red alliance wall) */
-    private val blueAlliancePerspectiveRotation: Rotation2d = Rotation2d.fromDegrees(0.0)
+    private val BlueAlliancePerspectiveRotation: Rotation2d = Rotation2d.fromDegrees(0.0)
 
     /* Red alliance sees forward as 180 degrees (toward blue alliance wall) */
-    private val redAlliancePerspectiveRotation: Rotation2d = Rotation2d.fromDegrees(180.0)
+    private val RedAlliancePerspectiveRotation: Rotation2d = Rotation2d.fromDegrees(180.0)
 
     /* Keep track if we've ever applied the operator perspective before or not */
     private var hasAppliedOperatorPerspective = false
 
     constructor(
         driveTrainConstants: SwerveDrivetrainConstants,
-        odometryUpdateFrequency: Double,
-        vararg modules: SwerveModuleConstants?,
-    ) : super(driveTrainConstants, odometryUpdateFrequency, *modules) {
-
+        OdometryUpdateFrequency: Double,
+        vararg modules: SwerveModuleConstants?
+    ) : super(driveTrainConstants, OdometryUpdateFrequency, *modules) {
+        if (Utils.isSimulation()) {
+            startSimThread()
+        }
     }
 
     constructor(driveTrainConstants: SwerveDrivetrainConstants, vararg modules: SwerveModuleConstants?) : super(
         driveTrainConstants,
-        *modules,
+        *modules
     ) {
-
+        if (Utils.isSimulation()) {
+            startSimThread()
+        }
     }
 
     fun applyRequest(requestSupplier: Supplier<SwerveRequest?>): Command {
         return run { this.setControl(requestSupplier.get()) }
     }
 
+    private fun startSimThread() {
+        m_lastSimTime = Utils.getCurrentTimeSeconds()
 
+        /* Run simulation at a faster rate so PID gains behave more reasonably */
+        m_simNotifier = Notifier {
+            val currentTime = Utils.getCurrentTimeSeconds()
+            val deltaTime = currentTime - m_lastSimTime
+            m_lastSimTime = currentTime
+
+            /* use the measured time delta, get battery voltage from WPILib */
+            updateSimState(deltaTime, RobotController.getBatteryVoltage())
+        }
+        m_simNotifier!!.startPeriodic(kSimLoopPeriod)
+    }
 
     override fun periodic() {
         /* Periodically try to apply the operator perspective */
@@ -63,9 +79,9 @@ class CommandSwerveDrivetrain : SwerveDrivetrain, Subsystem {
             DriverStation.getAlliance().ifPresent { allianceColor: Alliance ->
                 this.setOperatorPerspectiveForward(
                     if (allianceColor == Alliance.Red)
-                        redAlliancePerspectiveRotation
+                        RedAlliancePerspectiveRotation
                     else
-                        blueAlliancePerspectiveRotation
+                        BlueAlliancePerspectiveRotation
                 )
                 hasAppliedOperatorPerspective = true
             }
@@ -73,6 +89,6 @@ class CommandSwerveDrivetrain : SwerveDrivetrain, Subsystem {
     }
 
     companion object {
-        private const val simLoopPeriod = 0.005 // 5 ms
+        private const val kSimLoopPeriod = 0.005 // 5 ms
     }
 }
