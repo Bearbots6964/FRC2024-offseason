@@ -10,7 +10,7 @@ cd vendordeps
 
 # Check for internet connection
 check_internet() {
-    if ping -c 1 8.8.8.8 &> /dev/null; then
+    if curl github.com &> /dev/null; then
         return 0
     else
         return 1
