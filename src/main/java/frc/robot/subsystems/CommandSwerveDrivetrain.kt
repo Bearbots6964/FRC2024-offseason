@@ -37,21 +37,38 @@ class CommandSwerveDrivetrain : SwerveDrivetrain, Subsystem {
         odometryUpdateFrequency: Double,
         vararg modules: SwerveModuleConstants?,
     ) : super(driveTrainConstants, odometryUpdateFrequency, *modules) {
-
+        if (Utils.isSimulation()) {
+            startSimThread()
+        }
     }
 
     constructor(driveTrainConstants: SwerveDrivetrainConstants, vararg modules: SwerveModuleConstants?) : super(
         driveTrainConstants,
         *modules,
     ) {
-
+        if (Utils.isSimulation()) {
+            startSimThread()
+        }
     }
 
     fun applyRequest(requestSupplier: Supplier<SwerveRequest?>): Command {
         return run { this.setControl(requestSupplier.get()) }
     }
 
+    private fun startSimThread() {
+        lastSimTime = Utils.getCurrentTimeSeconds()
 
+        /* Run simulation at a faster rate so PID gains behave more reasonably */
+        simNotifier = Notifier {
+            val currentTime = Utils.getCurrentTimeSeconds()
+            val deltaTime = currentTime - lastSimTime
+            lastSimTime = currentTime
+
+            /* use the measured time delta, get battery voltage from WPILib */
+            updateSimState(deltaTime, RobotController.getBatteryVoltage())
+        }
+        simNotifier!!.startPeriodic(simLoopPeriod)
+    }
 
     override fun periodic() {
         /* Periodically try to apply the operator perspective */
