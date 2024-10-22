@@ -1,4 +1,4 @@
-package frc.robot.subsystems
+package frc.robot.subsystems.vision
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import edu.wpi.first.math.geometry.Rotation2d
@@ -6,19 +6,31 @@ import org.photonvision.PhotonCamera
 import org.photonvision.PhotonUtils
 import org.photonvision.targeting.PhotonTrackedTarget
 
-public class VisionSubsystem : SubsystemBase(){
-    private var camera : PhotonCamera = PhotonCamera("camera1")
+class VisionSubsystem : SubsystemBase(){
+    private var camera : PhotonCamera = PhotonCamera("ShitCam")
+    private lateinit var rot: Rotation2d
+    private var countWithoutMeasurement: Int = 0
 
-    public VisionSubsystem()
 
-    //returns angle to nearest note relative to the front of the robot
-    public fun getNearestRotation() : Rotation2d{
+    override fun periodic(){
+        // This method will be called once per scheduler run
         var result = camera.getLatestResult()
         if(result.hasTargets()){
             var target : PhotonTrackedTarget = result.getBestTarget()
-            return Rotation2d.fromDegrees(target.getYaw())
+            rot = Rotation2d.fromDegrees(target.yaw)
+            countWithoutMeasurement = 0
+        } else countWithoutMeasurement++
+
+        if (countWithoutMeasurement > 25) { // method called every 20 ms,
+            // so 25 * 20 = 500 ms without a target before setting rotation to 0
+            rot = Rotation2d.fromDegrees(0.0)
         }
-        return Rotation2d.fromDegrees(0.0)
+    }
+
+    //returns angle to nearest note relative to the front of the robot
+    fun getNearestRotation() : Rotation2d {
+
+        return rot
     }
 
 

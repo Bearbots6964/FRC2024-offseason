@@ -35,7 +35,7 @@ object TunerConstants {
 
     // The stator current at which the wheels start to slip;
     // This needs to be tuned to your individual robot
-    private const val kSlipCurrentA = 150.0
+    private const val kSlipCurrentA = 20.0 // TODO originally 150
 
     // Initial configs for the drive and steer motors and the CANcoder; these cannot be null.
     // Some configs will be overwritten; check the `with*InitialConfigs()` API documentation.
@@ -44,7 +44,7 @@ object TunerConstants {
         .withCurrentLimits(
             CurrentLimitsConfigs() // Swerve azimuth does not require much torque output, so we can set a relatively low
                 // stator current limit to help avoid brownouts without impacting performance.
-                .withStatorCurrentLimit(60.0)
+                .withStatorCurrentLimit(60.0) // TODO originally 60
                 .withStatorCurrentLimitEnable(true)
         )
     private val cancoderInitialConfigs = CANcoderConfiguration()
@@ -54,7 +54,7 @@ object TunerConstants {
 
     // Theoretical free speed (m/s) at 12v applied output;
     // This needs to be tuned to your individual robot
-    const val kSpeedAt12VoltsMps: Double = 9.46
+    const val kSpeedAt12VoltsMps: Double = 1.0 // TODO originally 9.46
 
     // Every 1 rotation of the azimuth results in kCoupleRatio drive motor turns;
     // This may need to be tuned to your individual robot
