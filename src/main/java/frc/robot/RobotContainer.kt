@@ -17,8 +17,9 @@ import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Commands
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import frc.robot.generated.TunerConstants
+import frc.robot.subsystems.ArmSubsystem
 import frc.robot.subsystems.CommandSwerveDrivetrain
-import frc.robot.subsystems.VisionSubsystem
+import frc.robot.subsystems.vision.VisionSubsystem
 import java.util.function.Supplier
 
 class RobotContainer {
@@ -37,6 +38,7 @@ class RobotContainer {
     private val joystick = CommandXboxController(0)
     var drivetrain: CommandSwerveDrivetrain = TunerConstants.DriveTrain // drivetrain
     val camera: VisionSubsystem = VisionSubsystem()
+    val armSubsystem: ArmSubsystem = ArmSubsystem
 
     // Slew Rate Limiters to limit acceleration of joystick inputs
     private val xLimiter = SlewRateLimiter(2.0)
@@ -70,7 +72,7 @@ class RobotContainer {
                 .withVelocityY(-joystick.leftX * MaxSpeed) // Drive left with negative X (left)
                 .withRotationalRate(-joystick.rightX * MaxAngularRate)
         } // Drive counterclockwise with negative X (left)
-
+        armSubsystem.defaultCommand = armSubsystem.getCommand { joystick.rightTriggerAxis - joystick.leftTriggerAxis }
         joystick.a().whileTrue(drivetrain.applyRequest { brake })
         joystick.b().whileTrue(
             drivetrain
@@ -80,7 +82,7 @@ class RobotContainer {
         // reset the field-centric heading on left bumper press
         joystick.leftBumper().onTrue(drivetrain.runOnce { drivetrain.seedFieldRelative() })
 
-        // face robot toward closest note
+        // face robot toward the closest note
         joystick.rightBumper().onTrue(drivetrain.applyRequest { point.withModuleDirection(camera.getNearestRotation()) })
 
         if (Utils.isSimulation()) {
