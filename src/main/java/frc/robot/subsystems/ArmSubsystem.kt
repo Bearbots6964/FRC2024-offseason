@@ -25,10 +25,13 @@ object ArmSubsystem : Subsystem {
 
     fun getCommand(joystickTriggerValue: () -> Double): Command {
         return run {
-            if (joystickTriggerValue.invoke() > 0.1) extend(joystickTriggerValue.invoke()) else if (joystickTriggerValue.invoke() < -0.1) retract(
-                -joystickTriggerValue.invoke()
-            )
+            if (joystickTriggerValue.invoke() > 0.1) {
+                extend(joystickTriggerValue.invoke())
+            } else if (joystickTriggerValue.invoke() < -0.1) {
+                retract(
+                    -joystickTriggerValue.invoke(),
+                )
+            }
         }
-
     }
 }

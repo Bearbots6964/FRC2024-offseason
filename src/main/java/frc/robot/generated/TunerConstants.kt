@@ -45,7 +45,7 @@ object TunerConstants {
             CurrentLimitsConfigs() // Swerve azimuth does not require much torque output, so we can set a relatively low
                 // stator current limit to help avoid brownouts without impacting performance.
                 .withStatorCurrentLimit(60.0) // TODO originally 60
-                .withStatorCurrentLimitEnable(true)
+                .withStatorCurrentLimitEnable(true),
         )
     private val cancoderInitialConfigs = CANcoderConfiguration()
 
@@ -69,7 +69,6 @@ object TunerConstants {
 
     private const val kCANbusName = "rio"
     private const val kPigeonId = 30
-
 
     // These are only used for simulation
     private const val kSteerInertia = 0.00001
@@ -103,7 +102,6 @@ object TunerConstants {
         .withDriveMotorInitialConfigs(driveInitialConfigs)
         .withSteerMotorInitialConfigs(steerInitialConfigs)
         .withCANcoderInitialConfigs(cancoderInitialConfigs)
-
 
     // Front Left
     private const val kFrontLeftDriveMotorId = 6
@@ -145,17 +143,16 @@ object TunerConstants {
     private const val kBackRightXPosInches = -12.125
     private const val kBackRightYPosInches = -12.125
 
-
     private val FrontLeft: SwerveModuleConstants = ConstantCreator.createModuleConstants(
         kFrontLeftSteerMotorId,
         kFrontLeftDriveMotorId,
         kFrontLeftEncoderId,
         kFrontLeftEncoderOffset,
         Units.inchesToMeters(
-            kFrontLeftXPosInches
+            kFrontLeftXPosInches,
         ),
         Units.inchesToMeters(kFrontLeftYPosInches),
-        kInvertLeftSide
+        kInvertLeftSide,
     )
         .withSteerMotorInverted(kFrontLeftSteerInvert)
     private val FrontRight: SwerveModuleConstants = ConstantCreator.createModuleConstants(
@@ -164,16 +161,22 @@ object TunerConstants {
         kFrontRightEncoderId,
         kFrontRightEncoderOffset,
         Units.inchesToMeters(
-            kFrontRightXPosInches
+            kFrontRightXPosInches,
         ),
         Units.inchesToMeters(kFrontRightYPosInches),
-        kInvertRightSide
+        kInvertRightSide,
     )
         .withSteerMotorInverted(kFrontRightSteerInvert)
     private val BackLeft: SwerveModuleConstants = ConstantCreator.createModuleConstants(
-        kBackLeftSteerMotorId, kBackLeftDriveMotorId, kBackLeftEncoderId, kBackLeftEncoderOffset, Units.inchesToMeters(
-            kBackLeftXPosInches
-        ), Units.inchesToMeters(kBackLeftYPosInches), kInvertLeftSide
+        kBackLeftSteerMotorId,
+        kBackLeftDriveMotorId,
+        kBackLeftEncoderId,
+        kBackLeftEncoderOffset,
+        Units.inchesToMeters(
+            kBackLeftXPosInches,
+        ),
+        Units.inchesToMeters(kBackLeftYPosInches),
+        kInvertLeftSide,
     )
         .withSteerMotorInverted(kBackLeftSteerInvert)
     private val BackRight: SwerveModuleConstants = ConstantCreator.createModuleConstants(
@@ -182,15 +185,18 @@ object TunerConstants {
         kBackRightEncoderId,
         kBackRightEncoderOffset,
         Units.inchesToMeters(
-            kBackRightXPosInches
+            kBackRightXPosInches,
         ),
         Units.inchesToMeters(kBackRightYPosInches),
-        kInvertRightSide
+        kInvertRightSide,
     )
         .withSteerMotorInverted(kBackRightSteerInvert)
 
     val DriveTrain: CommandSwerveDrivetrain = CommandSwerveDrivetrain(
-        DrivetrainConstants, FrontLeft,
-        FrontRight, BackLeft, BackRight
+        DrivetrainConstants,
+        FrontLeft,
+        FrontRight,
+        BackLeft,
+        BackRight,
     )
 }
