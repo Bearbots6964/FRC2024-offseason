@@ -2,11 +2,12 @@ package frc.robot.subsystems.vision
 
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.wpilibj2.command.SubsystemBase
+import edu.wpi.first.networktables.NetworkTableInstance
 import org.photonvision.PhotonCamera
 import org.photonvision.targeting.PhotonTrackedTarget
 
 class VisionSubsystem : SubsystemBase() {
-    private var camera: PhotonCamera = PhotonCamera("ShitCam")
+    private var camera: PhotonCamera = PhotonCamera(NetworkTableInstance.getDefault(),"ShitCam")
     private lateinit var rot: Rotation2d
     private var countWithoutMeasurement: Int = 0
 
@@ -15,7 +16,7 @@ class VisionSubsystem : SubsystemBase() {
         var result = camera.getLatestResult()
         if (result.hasTargets()) {
             var target: PhotonTrackedTarget = result.getBestTarget()
-            rot = Rotation2d.fromDegrees(target.yaw)
+            rot = Rotation2d.fromDegrees(-target.yaw)
             countWithoutMeasurement = 0
         } else {
             countWithoutMeasurement++

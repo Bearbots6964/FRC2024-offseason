@@ -83,7 +83,7 @@ class RobotContainer {
         joystick.leftBumper().onTrue(drivetrain.runOnce { drivetrain.seedFieldRelative() })
 
         // face robot toward the closest note
-        joystick.rightBumper().onTrue(drivetrain.applyRequest { point.withModuleDirection(camera.getNearestRotation()) })
+        joystick.rightBumper().onTrue(drivetrain.runOnce { point.withModuleDirection(camera.getNearestRotation()) })
 
         if (Utils.isSimulation()) {
             drivetrain.seedFieldRelative(Pose2d(Translation2d(), Rotation2d.fromDegrees(90.0)))
