@@ -36,7 +36,7 @@ class RobotContainer {
     /* Setting up bindings for necessary control of the swerve drive platform */
     private val joystick = CommandXboxController(0)
     var drivetrain: CommandSwerveDrivetrain = TunerConstants.DriveTrain // drivetrain
-    val camera : VisionSubsystem = VisionSubsystem()
+    val camera: VisionSubsystem = VisionSubsystem()
 
     // Slew Rate Limiters to limit acceleration of joystick inputs
     private val xLimiter = SlewRateLimiter(2.0)
@@ -71,24 +71,23 @@ class RobotContainer {
                 .withRotationalRate(-joystick.rightX * MaxAngularRate)
         } // Drive counterclockwise with negative X (left)
 
-
         joystick.a().whileTrue(drivetrain.applyRequest { brake })
-        joystick.b().whileTrue(drivetrain
-            .applyRequest { point.withModuleDirection(Rotation2d(-joystick.leftY, -joystick.leftX)) })
+        joystick.b().whileTrue(
+            drivetrain
+                .applyRequest { point.withModuleDirection(Rotation2d(-joystick.leftY, -joystick.leftX)) },
+        )
 
         // reset the field-centric heading on left bumper press
         joystick.leftBumper().onTrue(drivetrain.runOnce { drivetrain.seedFieldRelative() })
 
-        //face robot toward closest note
-        joystick.rightBumper().onTrue(drivetrain.applyRequest { point.withModuleDirection(camera.getNearestRotation())})
+        // face robot toward closest note
+        joystick.rightBumper().onTrue(drivetrain.applyRequest { point.withModuleDirection(camera.getNearestRotation()) })
 
         if (Utils.isSimulation()) {
             drivetrain.seedFieldRelative(Pose2d(Translation2d(), Rotation2d.fromDegrees(90.0)))
         }
         drivetrain.registerTelemetry { state: SwerveDrivetrain.SwerveDriveState -> logger.telemeterize(state) }
     }
-
-
 
     init {
         configureBindings()
