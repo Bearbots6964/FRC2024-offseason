@@ -5,21 +5,45 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrainConstants
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModuleConstants
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest
+import com.ctre.phoenix6.signals.NeutralModeValue
+import com.pathplanner.lib.auto.AutoBuilder
+import com.pathplanner.lib.commands.FollowPathCommand
+import com.pathplanner.lib.commands.PathPlannerAuto
+import com.pathplanner.lib.controllers.PPHolonomicDriveController
+import com.pathplanner.lib.path.GoalEndState
+import com.pathplanner.lib.path.PathConstraints
+import com.pathplanner.lib.path.PathPlannerPath
+import com.pathplanner.lib.util.HolonomicPathFollowerConfig
+import com.pathplanner.lib.util.PIDConstants
+import com.pathplanner.lib.util.ReplanningConfig
+import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
+import edu.wpi.first.math.kinematics.ChassisSpeeds
+import edu.wpi.first.units.Measure
+import edu.wpi.first.units.Units.*
+import edu.wpi.first.units.Voltage
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.DriverStation.Alliance
 import edu.wpi.first.wpilibj.Notifier
 import edu.wpi.first.wpilibj.RobotController
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Subsystem
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
+import frc.robot.Util.ModifiedSignalLogger
+import frc.robot.Util.SwerveVoltageRequest
+import frc.robot.generated.TunerConstants
+import java.util.*
 import java.util.function.Supplier
+import kotlin.math.PI
+import kotlin.math.max
 
 /**
- * Class that extends the Phoenix SwerveDrivetrain class and implements
- * subsystem so it can be used in command-based projects easily.
+ * Class that extends the Phoenix SwerveDrivetrain class and implements subsystem
+ * so it can be used in command-based projects easily.
  */
-@Suppress("ConstPropertyName")
 class CommandSwerveDrivetrain : SwerveDrivetrain, Subsystem {
+    private val autoRequest: SwerveRequest.ApplyChassisSpeeds = SwerveRequest.ApplyChassisSpeeds()
+    private var driveBaseRadius = 0.0
     private var simNotifier: Notifier? = null
     private var lastSimTime = 0.0
 
@@ -37,24 +61,52 @@ class CommandSwerveDrivetrain : SwerveDrivetrain, Subsystem {
         odometryUpdateFrequency: Double,
         vararg modules: SwerveModuleConstants?,
     ) : super(driveTrainConstants, odometryUpdateFrequency, *modules) {
-        if (Utils.isSimulation()) {
-            startSimThread()
+        configNeutralMode(NeutralModeValue.Coast)
+        for (moduleLocation in m_moduleLocations) {
+            driveBaseRadius = max(driveBaseRadius, moduleLocation.norm)
+            if (Utils.isSimulation()) {
+                startSimThread()
+            }
         }
+        configurePathPlanner()
     }
 
     constructor(driveTrainConstants: SwerveDrivetrainConstants, vararg modules: SwerveModuleConstants?) : super(
         driveTrainConstants,
         *modules,
     ) {
+        configNeutralMode(NeutralModeValue.Coast)
+        configurePathPlanner()
         if (Utils.isSimulation()) {
             startSimThread()
         }
     }
 
+    private fun configurePathPlanner() {
+
+
+        AutoBuilder.configureHolonomic(
+            { this.state.Pose },  // Supplier of current robot pose
+            this::seedFieldRelative,  // Consumer for seeding pose against auto
+            { this.currentRobotChassisSpeeds },
+            { speeds -> this.setControl(autoRequest.withSpeeds(speeds)) },  // Consumer of ChassisSpeeds to drive the robot
+            holonomicPathFollowerConfig(),
+            getAlliance(),
+            this
+        ) // Subsystem for requirements
+    }
+
+    private fun holonomicPathFollowerConfig() = HolonomicPathFollowerConfig(
+        PIDConstants(10.0, 0.0, 0.0),
+        PIDConstants(10.0, 0.0, 0.0),
+        TunerConstants.kSpeedAt12VoltsMps,
+        driveBaseRadius,
+        ReplanningConfig()
+    )
+
     fun applyRequest(requestSupplier: Supplier<SwerveRequest?>): Command {
         return run { this.setControl(requestSupplier.get()) }
     }
-
     private fun startSimThread() {
         lastSimTime = Utils.getCurrentTimeSeconds()
 
@@ -70,6 +122,104 @@ class CommandSwerveDrivetrain : SwerveDrivetrain, Subsystem {
         simNotifier!!.startPeriodic(simLoopPeriod)
     }
 
+    fun getAutoPath(pathName: String?): Command {
+        return PathPlannerAuto(pathName)
+    }
+
+    fun rotateToAngle(angle: Double): Command {
+        // this takes a lot of building up
+        // first get the current angle
+        val currentAngle = this.state.Pose.rotation.degrees
+        // then get the difference between the current angle and the target angle
+        val angleDifference = angle - currentAngle
+        // create a Pose2d
+        val targetPose = Pose2d(0.0, 0.0, Rotation2d.fromDegrees(angleDifference))
+        // and now the full thing
+        val path = PathPlannerPath(
+            PathPlannerPath.bezierFromPoses(targetPose), constraints, GoalEndState(0.0, Rotation2d(angleDifference))
+        )
+        // follow path command
+        val followPathCommand = FollowPathCommand(
+            path,
+            { this.state.Pose },
+            { this.currentRobotChassisSpeeds },
+            { speeds -> useSpeeds(speeds) },
+            getHolonomicDriveController(),
+            getReplanningConfig(),
+            getAlliance(),
+            this
+        )
+        return followPathCommand // i hate this so much
+    }
+
+    var constraints = PathConstraints(9.46, 2.0, 2 * PI, 4 * PI)
+        get() {
+            return field
+        }
+
+    fun useSpeeds(speeds: ChassisSpeeds) {
+        autoRequest.withSpeeds(speeds)
+    }
+
+    private fun getHolonomicDriveController() = PPHolonomicDriveController(
+        PIDConstants(10.0, 0.0, 0.0), PIDConstants(10.0, 0.0, 0.0),
+        // max module speed is 9.46 m/s, convert to ft/s
+        FeetPerSecond.of(9.46).`in`(MetersPerSecond), driveBaseRadius
+
+    )
+
+    private fun getAlliance() = alliance@{
+        // Boolean supplier that controls when the path will be mirrored for the red alliance
+        // This will flip the path being followed to the red side of the field during auto only.
+        // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+        val alliance: Optional<DriverStation.Alliance> = DriverStation.getAlliance()
+        if (alliance.isPresent) {
+            return@alliance (alliance.get() == DriverStation.Alliance.Red) and !DriverStation.isTeleop()
+        }
+        false
+    }
+
+    private fun getReplanningConfig() = ReplanningConfig(true, true)
+
+    override fun simulationPeriodic() {/* Assume 20ms update rate, get battery voltage from WPILib */
+        updateSimState(0.02, RobotController.getBatteryVoltage())
+    }
+
+
+    val currentRobotChassisSpeeds: ChassisSpeeds
+        get() = m_kinematics.toChassisSpeeds(*state.ModuleStates)
+
+    private val driveVoltageRequest: SwerveVoltageRequest = SwerveVoltageRequest(true)
+
+    private val m_driveSysIdRoutine: SysIdRoutine = SysIdRoutine(
+        SysIdRoutine.Config(null, null, null, ModifiedSignalLogger.logState()), SysIdRoutine.Mechanism(
+            { volts: Measure<Voltage?> ->
+                setControl(
+                    driveVoltageRequest.withVoltage(
+                        volts.`in`(
+                            Volts
+                        )
+                    )
+                )
+            }, null, this
+        )
+    )
+
+    private val steerVoltageRequest: SwerveVoltageRequest = SwerveVoltageRequest(false)
+
+    private val m_steerSysIdRoutine: SysIdRoutine = SysIdRoutine(
+        SysIdRoutine.Config(null, null, null, ModifiedSignalLogger.logState()), SysIdRoutine.Mechanism(
+            { volts: Measure<Voltage?> ->
+                setControl(
+                    steerVoltageRequest.withVoltage(
+                        volts.`in`(
+                            Volts
+                        )
+                    )
+                )
+            }, null, this
+        )
+    )
     override fun periodic() {
         /* Periodically try to apply the operator perspective */
         /* If we haven't applied the operator perspective before, then we should apply it regardless of DS state */
@@ -87,6 +237,42 @@ class CommandSwerveDrivetrain : SwerveDrivetrain, Subsystem {
                 hasAppliedOperatorPerspective = true
             }
         }
+    }
+
+    private val m_slipSysIdRoutine: SysIdRoutine = SysIdRoutine(
+        SysIdRoutine.Config(
+            Volts.of(0.25).per(Seconds.of(1.0)), null, null, ModifiedSignalLogger.logState()
+        ), SysIdRoutine.Mechanism(
+            { volts: Measure<Voltage?> ->
+                setControl(
+                    driveVoltageRequest.withVoltage(
+                        volts.`in`(
+                            Volts
+                        )
+                    )
+                )
+            }, null, this
+        )
+    )
+
+    fun runDriveQuasiTest(direction: SysIdRoutine.Direction?): Command {
+        return m_driveSysIdRoutine.quasistatic(direction)
+    }
+
+    fun runDriveDynamTest(direction: SysIdRoutine.Direction?): Command {
+        return m_driveSysIdRoutine.dynamic(direction)
+    }
+
+    fun runSteerQuasiTest(direction: SysIdRoutine.Direction?): Command {
+        return m_steerSysIdRoutine.quasistatic(direction)
+    }
+
+    fun runSteerDynamTest(direction: SysIdRoutine.Direction?): Command {
+        return m_steerSysIdRoutine.dynamic(direction)
+    }
+
+    fun runDriveSlipTest(): Command {
+        return m_slipSysIdRoutine.quasistatic(SysIdRoutine.Direction.kForward)
     }
 
     companion object {
