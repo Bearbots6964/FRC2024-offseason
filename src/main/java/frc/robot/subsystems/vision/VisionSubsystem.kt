@@ -32,9 +32,7 @@ class VisionSubsystem(var drivetrain: CommandSwerveDrivetrain) : SubsystemBase()
     init {
         SmartDashboard.putNumber("Field Error", fieldError.toDouble())
         SmartDashboard.putNumber("Limelight Error", distanceError.toDouble())
-
     }
-
 
     fun updateLeft(): EstimatedRobotPose? {
         return leftPhotonPoseEstimator.update().getOrNull()
@@ -42,7 +40,6 @@ class VisionSubsystem(var drivetrain: CommandSwerveDrivetrain) : SubsystemBase()
     fun updateRight(): EstimatedRobotPose? {
         return rightPhotonPoseEstimator.update().getOrNull()
     }
-
 
     fun useLimelight(enable: Boolean) {
         this.enable = enable

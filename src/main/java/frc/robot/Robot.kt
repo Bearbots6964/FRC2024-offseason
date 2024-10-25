@@ -18,14 +18,12 @@ import org.littletonrobotics.junction.networktables.NT4Publisher
 import org.littletonrobotics.junction.wpilog.WPILOGReader
 import org.littletonrobotics.junction.wpilog.WPILOGWriter
 
-
 class Robot : LoggedRobot() {
     private var m_autonomousCommand: Command? = null
 
     private var m_robotContainer: RobotContainer? = null
 
     override fun robotInit() {
-
         Pathfinding.setPathfinder(LocalADStarAK())
 
         Logger.recordMetadata("ProjectName", "FRC2024-offseason") // Set a metadata value
@@ -42,12 +40,11 @@ class Robot : LoggedRobot() {
                 WPILOGWriter(
                     LogFileUtil.addPathSuffix(
                         logPath,
-                        "_sim"
-                    )
-                )
+                        "_sim",
+                    ),
+                ),
             ) // Save outputs to a new log
         }
-
 
 // Logger.disableDeterministicTimestamps() // See "Deterministic Timestamps" in the "Understanding Data Flow" page
         Logger.start() // Start logging! No more data receivers, replay sources, or metadata values may be added.
@@ -55,11 +52,10 @@ class Robot : LoggedRobot() {
 
         m_robotContainer!!.drivetrain.daqThread.setThreadPriority(99)
 
-
         DriverStation.silenceJoystickConnectionWarning(true)
         SignalLogger.start()
 
-        PathfindingCommand.warmupCommand().schedule();
+        PathfindingCommand.warmupCommand().schedule()
     }
 
     override fun robotPeriodic() {
