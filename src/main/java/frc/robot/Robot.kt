@@ -20,7 +20,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter
 class Robot : LoggedRobot() {
     private var robotContainer: RobotContainer = RobotContainer()
     private var autonomousCommand: Command? = null
-    
+
     override fun robotInit() {
         Logger.recordMetadata("ProjectName", "FRC2024-offseason")
         // Log to a USB stick ("/U/logs")
@@ -30,52 +30,52 @@ class Robot : LoggedRobot() {
         // Enables power distribution logging
         PowerDistribution(
             1,
-            PowerDistribution.ModuleType.kRev
+            PowerDistribution.ModuleType.kRev,
         )
-        
+
         // Start logging! No more data receivers, replay sources, or metadata values may be added.
         Logger.start()
         SignalLogger.start()
-        
+
         DriverStation.silenceJoystickConnectionWarning(true)
         robotContainer.drivetrain.daqThread.setThreadPriority(99)
-        
+
         Pathfinding.setPathfinder(LocalADStarAK())
         PathfindingCommand.warmupCommand().schedule()
     }
-    
+
     override fun robotPeriodic() {
         CommandScheduler.getInstance().run()
     }
-    
+
     override fun disabledInit() {}
     override fun disabledPeriodic() {}
     override fun disabledExit() {}
-    
+
     override fun autonomousInit() {
         autonomousCommand = robotContainer.autoCommand
-        
+
         if (autonomousCommand != null) {
             autonomousCommand?.schedule()
         }
     }
-    
+
     override fun autonomousPeriodic() {}
     override fun autonomousExit() {}
-    
+
     override fun teleopInit() {
         if (autonomousCommand != null) {
             autonomousCommand!!.cancel()
         }
     }
-    
+
     override fun teleopPeriodic() {}
     override fun teleopExit() {}
-    
+
     override fun testInit() {
         CommandScheduler.getInstance().cancelAll()
     }
-    
+
     override fun testPeriodic() {}
     override fun testExit() {}
     override fun simulationPeriodic() {}
