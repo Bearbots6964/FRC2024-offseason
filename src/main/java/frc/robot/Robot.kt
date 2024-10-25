@@ -28,23 +28,24 @@ class Robot : LoggedRobot() {
 
         Logger.recordMetadata("ProjectName", "FRC2024-offseason") // Set a metadata value
 
-        if (isReal()) {
+//        if (isReal()) {
             Logger.addDataReceiver(WPILOGWriter()) // Log to a USB stick ("/U/logs") TODO get usb stick
             Logger.addDataReceiver(NT4Publisher()) // Publish data to NetworkTables
             PowerDistribution(1, PowerDistribution.ModuleType.kRev) // Enables power distribution logging
-        } else {
-            setUseTiming(false) // Run as fast as possible
-            val logPath = LogFileUtil.findReplayLog() // Pull the replay log from AdvantageScope (or prompt the user)
-            Logger.setReplaySource(WPILOGReader(logPath)) // Read replay log
-            Logger.addDataReceiver(
-                WPILOGWriter(
-                    LogFileUtil.addPathSuffix(
-                        logPath,
-                        "_sim",
-                    ),
-                ),
-            ) // Save outputs to a new log
-        }
+//        }
+//        else {
+//            setUseTiming(false) // Run as fast as possible
+//            val logPath = LogFileUtil.findReplayLog() // Pull the replay log from AdvantageScope (or prompt the user)
+//            Logger.setReplaySource(WPILOGReader(logPath)) // Read replay log
+//            Logger.addDataReceiver(
+//                WPILOGWriter(
+//                    LogFileUtil.addPathSuffix(
+//                        logPath,
+//                        "_sim",
+//                    ),
+//                ),
+//            ) // Save outputs to a new log
+//        }
 
 // Logger.disableDeterministicTimestamps() // See "Deterministic Timestamps" in the "Understanding Data Flow" page
         Logger.start() // Start logging! No more data receivers, replay sources, or metadata values may be added.
