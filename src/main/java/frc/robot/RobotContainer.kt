@@ -14,7 +14,6 @@ import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.wpilibj.DriverStation
-import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.Command
@@ -37,7 +36,7 @@ class RobotContainer {
 
     private val controlChooser: SendableChooser<String> = SendableChooser()
     private val controlChooserLogger: LoggedDashboardChooser<String>
-    
+
     private val speedChooser: SendableChooser<Double> = SendableChooser()
     private val speedChooserLogger: LoggedDashboardChooser<Double>
     private var MaxSpeed: Double = TunerConstants.kSpeedAt12VoltsMps // Initial max is true top speed
@@ -127,7 +126,7 @@ class RobotContainer {
         val controlPick = Trigger { lastControl !== controlChooserLogger.get() }
         controlPick.onTrue(Commands.runOnce({ newControlStyle() }))
 
-        val speedPick = Trigger { lastSpeed !== try { speedChooserLogger.get()!! } catch (e: Throwable) {0.65} }
+        val speedPick = Trigger { lastSpeed !== try { speedChooserLogger.get()!! } catch (e: Throwable) { 0.65 } }
         speedPick.onTrue(Commands.runOnce({ newSpeed() }))
 
         drv.x().and(drv.pov(0)).whileTrue(drivetrain.runDriveQuasiTest(SysIdRoutine.Direction.kForward))
@@ -184,7 +183,7 @@ class RobotContainer {
             autoChooser.get()
 
     private fun newControlStyle() {
-        lastControl = if(controlChooserLogger.get() != null) controlChooserLogger.get() else "2 Joysticks"
+        lastControl = if (controlChooserLogger.get() != null) controlChooserLogger.get() else "2 Joysticks"
         when (controlChooserLogger.get()) {
             "2 Joysticks" -> controlStyle = Supplier<SwerveRequest?> {
                 drive.withVelocityX(-drv.leftY * MaxSpeed) // Drive forward -Y
