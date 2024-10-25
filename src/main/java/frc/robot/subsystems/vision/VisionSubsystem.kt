@@ -36,38 +36,38 @@ class VisionSubsystem(private var drivetrain: CommandSwerveDrivetrain) : Subsyst
         aprilTagFieldLayout,
         PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
         rightCam,
-        botToRightCamera
+        botToRightCamera,
     )
     private var leftPhotonPoseEstimator = PhotonPoseEstimator(
         aprilTagFieldLayout,
         PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
         leftCam,
-        botToLeftCamera
+        botToLeftCamera,
     )
     private val isSim = RobotBase.isSimulation()
-    
+
     /** Creates a new Limelight. */
     init {
         SmartDashboard.putNumber("Field Error", fieldError.toDouble())
         SmartDashboard.putNumber("Limelight Error", distanceError.toDouble())
     }
-    
+
     fun updateLeft(): EstimatedRobotPose? {
         return leftPhotonPoseEstimator.update().getOrNull()
     }
-    
+
     fun updateRight(): EstimatedRobotPose? {
         return rightPhotonPoseEstimator.update().getOrNull()
     }
-    
+
     fun useLimelight(enable: Boolean) {
         this.enable = enable
     }
-    
+
     fun trustLL(trust: Boolean) {
         this.trust = trust
     }
-    
+
     override fun periodic() {
         if (!isSim) {
             val right = updateRight()
@@ -75,18 +75,18 @@ class VisionSubsystem(private var drivetrain: CommandSwerveDrivetrain) : Subsyst
             if (right != null) {
                 drivetrain.addVisionMeasurement(
                     right.estimatedPose.toPose2d(),
-                    right.timestampSeconds
+                    right.timestampSeconds,
                 )
             }
             if (left != null) {
                 drivetrain.addVisionMeasurement(
                     left.estimatedPose.toPose2d(),
-                    left.timestampSeconds
+                    left.timestampSeconds,
                 )
             }
         }
     }
-    
+
     fun getNoteCamAngle(): Double {
         return if (!isSim) {
             noteCam.getLatestResult().getBestTarget().yaw
@@ -94,7 +94,7 @@ class VisionSubsystem(private var drivetrain: CommandSwerveDrivetrain) : Subsyst
             0.0
         }
     }
-    
+
     companion object {
         private val field = RectanglePoseArea(Translation2d(0.0, 0.0), Translation2d(16.54, 8.02))
     }

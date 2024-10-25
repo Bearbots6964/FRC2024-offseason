@@ -9,7 +9,7 @@ object ModifiedSignalLogger : SignalLogger() {
         // Start logging if we get the consumer, so we have some data
         // before the start of the motion
         start()
-        
+
         return Consumer { state: SysIdRoutineLog.State -> writeString("State", state.toString()) }
     }
 }

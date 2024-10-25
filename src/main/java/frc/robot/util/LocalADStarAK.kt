@@ -14,7 +14,7 @@ import org.littletonrobotics.junction.inputs.LoggableInputs
 
 class LocalADStarAK : Pathfinder {
     private val io = ADStarIO()
-    
+
     /**
      * Get if a new path has been calculated since the last time a
      * path was retrieved.
@@ -25,12 +25,12 @@ class LocalADStarAK : Pathfinder {
         if (!Logger.hasReplaySource()) {
             io.updateIsNewPathAvailable()
         }
-        
+
         Logger.processInputs("LocalADStarAK", io)
-        
+
         return io.isNewPathAvailable
     }
-    
+
     /**
      * Get the most recently calculated path
      *
@@ -48,16 +48,16 @@ class LocalADStarAK : Pathfinder {
         if (!Logger.hasReplaySource()) {
             io.updateCurrentPathPoints(constraints, goalEndState)
         }
-        
+
         Logger.processInputs("LocalADStarAK", io)
-        
+
         if (io.currentPathPoints.isEmpty()) {
             return null
         }
-        
+
         return PathPlannerPath.fromPathPoints(io.currentPathPoints, constraints, goalEndState)
     }
-    
+
     /**
      * Set the start position to pathfind from.
      *
@@ -70,7 +70,7 @@ class LocalADStarAK : Pathfinder {
             io.adStar.setStartPosition(startPosition)
         }
     }
-    
+
     /**
      * Set the goal position to pathfind to.
      *
@@ -83,7 +83,7 @@ class LocalADStarAK : Pathfinder {
             io.adStar.setGoalPosition(goalPosition)
         }
     }
-    
+
     /**
      * Set the dynamic obstacles that should be avoided while
      * pathfinding.
@@ -103,15 +103,15 @@ class LocalADStarAK : Pathfinder {
             io.adStar.setDynamicObstacles(obs, currentRobotPos)
         }
     }
-    
+
     private class ADStarIO : LoggableInputs {
         var adStar: LocalADStar = LocalADStar()
         var isNewPathAvailable: Boolean = false
         var currentPathPoints: List<PathPoint> = emptyList()
-        
+
         override fun toLog(table: LogTable) {
             table.put("IsNewPathAvailable", isNewPathAvailable)
-            
+
             val pointsLogged = DoubleArray(currentPathPoints.size * 2)
             var idx = 0
             for (point in currentPathPoints) {
@@ -119,32 +119,32 @@ class LocalADStarAK : Pathfinder {
                 pointsLogged[idx + 1] = point.position.y
                 idx += 2
             }
-            
+
             table.put("CurrentPathPoints", pointsLogged)
         }
-        
+
         override fun fromLog(table: LogTable) {
             isNewPathAvailable = table["IsNewPathAvailable", false]
-            
+
             val pointsLogged = table["CurrentPathPoints", DoubleArray(0)]
-            
+
             val pathPoints: MutableList<PathPoint> = ArrayList()
             var i = 0
             while (i < pointsLogged.size) {
                 pathPoints.add(PathPoint(Translation2d(pointsLogged[i], pointsLogged[i + 1]), null))
                 i += 2
             }
-            
+
             currentPathPoints = pathPoints
         }
-        
+
         fun updateIsNewPathAvailable() {
             isNewPathAvailable = adStar.isNewPathAvailable
         }
-        
+
         fun updateCurrentPathPoints(constraints: PathConstraints?, goalEndState: GoalEndState?) {
             val currentPath = adStar.getCurrentPath(constraints, goalEndState)
-            
+
             currentPathPoints = if (currentPath != null) {
                 currentPath.allPathPoints
             } else {
