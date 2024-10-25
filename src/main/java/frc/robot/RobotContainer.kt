@@ -14,26 +14,25 @@ import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.wpilibj.DriverStation
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Commands
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import edu.wpi.first.wpilibj2.command.button.Trigger
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
-import frc.robot.subsystems.vision.Limelight
+import frc.robot.subsystems.vision.VisionSubsystem
 import frc.robot.generated.TunerConstants
 import frc.robot.subsystems.ArmSubsystem
-import frc.robot.subsystems.CommandSwerveDrivetrain
+import frc.robot.subsystems.drive.CommandSwerveDrivetrain
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser
 import java.util.function.Supplier
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
 
 class RobotContainer {
-    private val autoChooser: SendableChooser<Command>
-    private val controlChooser: SendableChooser<String> = SendableChooser<String>()
-    private val speedChooser: SendableChooser<Double> = SendableChooser<Double>()
+    private val autoChooser: LoggedDashboardChooser<Command>
+    private val controlChooser: LoggedDashboardChooser<String> = LoggedDashboardChooser<String>("Control Method Chooser")
+    private val speedChooser: LoggedDashboardChooser<Double> = LoggedDashboardChooser<Double>("Speed Chooser")
     private var MaxSpeed: Double = TunerConstants.kSpeedAt12VoltsMps // Initial max is true top speed
     private val TurtleSpeed = 0.1 // Reduction in speed from Max Speed, 0.1 = 10%
     private val MaxAngularRate =
@@ -47,7 +46,7 @@ class RobotContainer {
     var op: CommandXboxController = CommandXboxController(1) // operator xbox controller
     var drivetrain: CommandSwerveDrivetrain = TunerConstants.DriveTrain // drivetrain
     val armSubsystem: ArmSubsystem = ArmSubsystem
-    val limelight: Limelight = Limelight(drivetrain)
+    val visionSubsystem: VisionSubsystem = VisionSubsystem(drivetrain)
 
 
     // Slew Rate Limiters to limit acceleration of joystick inputs
@@ -66,7 +65,7 @@ class RobotContainer {
     var forwardStraight: SwerveRequest.RobotCentric = SwerveRequest.RobotCentric().withDriveRequestType(DriveRequestType.OpenLoopVoltage)
     var point: SwerveRequest.PointWheelsAt = SwerveRequest.PointWheelsAt()
 
-    var vision: Limelight = Limelight(drivetrain)
+    var vision: VisionSubsystem = VisionSubsystem(drivetrain)
 
     var logger: Telemetry = Telemetry(MaxSpeed)
 
@@ -108,20 +107,23 @@ class RobotContainer {
         )
         drv.leftBumper().onFalse(
             Commands.runOnce({
-                MaxSpeed = TunerConstants.kSpeedAt12VoltsMps * speedChooser.getSelected()
+                MaxSpeed = TunerConstants.kSpeedAt12VoltsMps * speedChooser.get()
             })
                 .andThen({ AngularRate = MaxAngularRate })
         )
+
+        drv.leftBumper().onTrue(drivetrain.rotateToAngle(visionSubsystem.getNoteCamAngle()))
+        /* TODO make sure this works and probably also see if we can't get it to also move the robot forward a bit to center it w/ the arm */
 
         if (Utils.isSimulation()) {
             drivetrain.seedFieldRelative(Pose2d(Translation2d(), Rotation2d.fromDegrees(0.0)))
         }
         drivetrain.registerTelemetry { state: SwerveDrivetrain.SwerveDriveState -> logger.telemeterize(state) }
 
-        val controlPick = Trigger { lastControl !== controlChooser.getSelected() }
+        val controlPick = Trigger { lastControl !== controlChooser.get() }
         controlPick.onTrue(Commands.runOnce({ newControlStyle() }))
 
-        val speedPick = Trigger { lastSpeed !== speedChooser.getSelected() }
+        val speedPick = Trigger { lastSpeed !== speedChooser.get() }
         speedPick.onTrue(Commands.runOnce({ newSpeed() }))
 
         drv.x().and(drv.pov(0)).whileTrue(drivetrain.runDriveQuasiTest(SysIdRoutine.Direction.kForward))
@@ -140,7 +142,7 @@ class RobotContainer {
         drv.back().and(drv.pov(0)).whileTrue(drivetrain.runDriveSlipTest())
 
 
-        drv.rightBumper().whileTrue(drivetrain.rotateToAngle(limelight.getNoteCamAngle()))
+        drv.rightBumper().whileTrue(drivetrain.rotateToAngle(visionSubsystem.getNoteCamAngle()))
     }
 
     init {
@@ -148,13 +150,12 @@ class RobotContainer {
         DriverStation.silenceJoystickConnectionWarning(true)
 
         // Build an auto chooser. This will use Commands.none() as the default option.
-        autoChooser = AutoBuilder.buildAutoChooser()
+        autoChooser = LoggedDashboardChooser("Auto Chooser", AutoBuilder.buildAutoChooser())
 
-        controlChooser.setDefaultOption("2 Joysticks", "2 Joysticks")
+        controlChooser.addDefaultOption("2 Joysticks", "2 Joysticks")
         controlChooser.addOption("1 Joystick Rotation Triggers", "1 Joystick Rotation Triggers")
         controlChooser.addOption("Split Joysticks Rotation Triggers", "Split Joysticks Rotation Triggers")
         controlChooser.addOption("2 Joysticks with Gas Pedal", "2 Joysticks with Gas Pedal")
-        SmartDashboard.putData("Control Chooser", controlChooser)
 
         speedChooser.addOption("100%", 1.0)
         speedChooser.addOption("95%", 0.95)
@@ -163,25 +164,22 @@ class RobotContainer {
         speedChooser.addOption("80%", 0.8)
         speedChooser.addOption("75%", 0.75)
         speedChooser.addOption("70%", 0.7)
-        speedChooser.setDefaultOption("65%", 0.65)
+        speedChooser.addDefaultOption("65%", 0.65)
         speedChooser.addOption("60%", 0.6)
         speedChooser.addOption("55%", 0.55)
         speedChooser.addOption("50%", 0.5)
         speedChooser.addOption("35%", 0.35)
-        SmartDashboard.putData("Speed Limit", speedChooser)
-
-        SmartDashboard.putData("Auto Chooser", autoChooser)
 
         configureBindings()
     }
 
     val autoCommand: Command?
         get() =/* First put the drivetrain into auto run mode, then run the auto */
-            autoChooser.getSelected()
+            autoChooser.get()
 
     private fun newControlStyle() {
-        lastControl = controlChooser.getSelected()
-        when (controlChooser.getSelected()) {
+        lastControl = controlChooser.get()
+        when (controlChooser.get()) {
             "2 Joysticks" -> controlStyle = Supplier<SwerveRequest?> {
                 drive.withVelocityX(-drv.leftY * MaxSpeed) // Drive forward -Y
                     .withVelocityY(-drv.leftX * MaxSpeed) // Drive left with negative X (left)
@@ -216,7 +214,7 @@ class RobotContainer {
     }
 
     private fun newSpeed() {
-        lastSpeed = speedChooser.getSelected()
+        lastSpeed = speedChooser.get()
         MaxSpeed = TunerConstants.kSpeedAt12VoltsMps * lastSpeed
     }
 

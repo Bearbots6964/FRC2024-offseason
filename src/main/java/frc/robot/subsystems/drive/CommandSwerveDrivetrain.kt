@@ -1,4 +1,4 @@
-package frc.robot.subsystems
+package frc.robot.subsystems.drive
 
 import com.ctre.phoenix6.Utils
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain
@@ -7,7 +7,6 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveModuleConstants
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest
 import com.ctre.phoenix6.signals.NeutralModeValue
 import com.pathplanner.lib.auto.AutoBuilder
-import com.pathplanner.lib.commands.FollowPathCommand
 import com.pathplanner.lib.commands.PathPlannerAuto
 import com.pathplanner.lib.controllers.PPHolonomicDriveController
 import com.pathplanner.lib.path.GoalEndState
@@ -29,9 +28,10 @@ import edu.wpi.first.wpilibj.RobotController
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Subsystem
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
-import frc.robot.Util.ModifiedSignalLogger
-import frc.robot.Util.SwerveVoltageRequest
+import frc.robot.util.ModifiedSignalLogger
+import frc.robot.util.SwerveVoltageRequest
 import frc.robot.generated.TunerConstants
+import org.littletonrobotics.junction.AutoLogOutput
 import java.util.*
 import java.util.function.Supplier
 import kotlin.math.PI
@@ -126,6 +126,21 @@ class CommandSwerveDrivetrain : SwerveDrivetrain, Subsystem {
         return PathPlannerAuto(pathName)
     }
 
+    fun driveToPose(pose: Pose2d): Command {
+        // Create the constraints to use during pathfinding
+        val constraints = PathConstraints(9.46, 2.0, 2 * PI, 4 * PI)
+
+        return AutoBuilder.pathfindToPose(pose, constraints, 0.0, 0.0)
+    }
+
+    fun pathfindThenFollowPath(pathName: String): Command {
+        val path = PathPlannerPath.fromPathFile(pathName)
+        // Create the constraints to use during pathfinding
+        val constraints = PathConstraints(9.46, 2.0, 2 * PI, 4 * PI)
+        // Since AutoBuilder is configured, we can use it to build pathfinding commands
+        return AutoBuilder.pathfindThenFollowPath(path, constraints, 0.0)
+    }
+
     fun rotateToAngle(angle: Double): Command {
         // this takes a lot of building up
         // first get the current angle
@@ -139,17 +154,7 @@ class CommandSwerveDrivetrain : SwerveDrivetrain, Subsystem {
             PathPlannerPath.bezierFromPoses(targetPose), constraints, GoalEndState(0.0, Rotation2d(angleDifference))
         )
         // follow path command
-        val followPathCommand = FollowPathCommand(
-            path,
-            { this.state.Pose },
-            { this.currentRobotChassisSpeeds },
-            { speeds -> useSpeeds(speeds) },
-            getHolonomicDriveController(),
-            getReplanningConfig(),
-            getAlliance(),
-            this
-        )
-        return followPathCommand // i hate this so much
+        return AutoBuilder.pathfindToPose(targetPose, constraints, 0.0, 0.0)
     }
 
     var constraints = PathConstraints(9.46, 2.0, 2 * PI, 4 * PI)
@@ -185,7 +190,7 @@ class CommandSwerveDrivetrain : SwerveDrivetrain, Subsystem {
         updateSimState(0.02, RobotController.getBatteryVoltage())
     }
 
-
+    @get:AutoLogOutput
     val currentRobotChassisSpeeds: ChassisSpeeds
         get() = m_kinematics.toChassisSpeeds(*state.ModuleStates)
 
