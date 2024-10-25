@@ -91,6 +91,23 @@ class Telemetry
             }
             trajPub.set(arr)
         }
+
+        SmartDashboard.putData("Swerve Drive") { builder ->
+            builder.setSmartDashboardType("SwerveDrive")
+            builder.addDoubleProperty("Front Left Angle", { m_moduleDirections[0].angle }, null)
+            builder.addDoubleProperty("Front Left Velocity", { m_moduleSpeeds[0].length }, null)
+
+            builder.addDoubleProperty("Front Right Angle", { m_moduleDirections[1].angle }, null)
+            builder.addDoubleProperty("Front Right Velocity", { m_moduleSpeeds[1].length }, null)
+
+            builder.addDoubleProperty("Back Left Angle", { m_moduleDirections[2].angle }, null)
+            builder.addDoubleProperty("Back Left Velocity", { m_moduleSpeeds[2].length }, null)
+
+            builder.addDoubleProperty("Back Right Angle", { m_moduleDirections[3].angle }, null)
+            builder.addDoubleProperty("Back Right Velocity", { m_moduleSpeeds[3].length }, null)
+            builder.addDoubleProperty("Robot Angle", { m_lastPose.rotation.radians }, null)
+        }
+
     }
 
     /* Accept the swerve drive state and telemeterize it to smartdashboard */
