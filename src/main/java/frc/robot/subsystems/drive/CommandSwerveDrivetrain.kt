@@ -90,16 +90,14 @@ class CommandSwerveDrivetrain : SwerveDrivetrain, Subsystem {
     }
 
     private fun configurePathPlanner() {
-
-
         AutoBuilder.configureHolonomic(
-            { this.state.Pose },  // Supplier of current robot pose
-            this::seedFieldRelative,  // Consumer for seeding pose against auto
+            { this.state.Pose }, // Supplier of current robot pose
+            this::seedFieldRelative, // Consumer for seeding pose against auto
             { this.currentRobotChassisSpeeds },
-            { speeds -> this.setControl(autoRequest.withSpeeds(speeds)) },  // Consumer of ChassisSpeeds to drive the robot
+            { speeds -> this.setControl(autoRequest.withSpeeds(speeds)) }, // Consumer of ChassisSpeeds to drive the robot
             holonomicPathFollowerConfig(),
             getAlliance(),
-            this
+            this,
         ) // Subsystem for requirements
     }
 
@@ -108,7 +106,7 @@ class CommandSwerveDrivetrain : SwerveDrivetrain, Subsystem {
         PIDConstants(10.0, 0.0, 0.0),
         TunerConstants.kSpeedAt12VoltsMps,
         driveBaseRadius,
-        ReplanningConfig()
+        ReplanningConfig(),
     )
 
     fun applyRequest(requestSupplier: Supplier<SwerveRequest?>): Command {
@@ -172,9 +170,11 @@ class CommandSwerveDrivetrain : SwerveDrivetrain, Subsystem {
     }
 
     private fun getHolonomicDriveController() = PPHolonomicDriveController(
-        PIDConstants(10.0, 0.0, 0.0), PIDConstants(10.0, 0.0, 0.0),
+        PIDConstants(10.0, 0.0, 0.0),
+        PIDConstants(10.0, 0.0, 0.0),
         // max module speed is 9.46 m/s, convert to ft/s
-        FeetPerSecond.of(9.46).`in`(MetersPerSecond), driveBaseRadius
+        FeetPerSecond.of(9.46).`in`(MetersPerSecond),
+        driveBaseRadius,
 
     )
 
@@ -191,7 +191,8 @@ class CommandSwerveDrivetrain : SwerveDrivetrain, Subsystem {
 
     private fun getReplanningConfig() = ReplanningConfig(true, true)
 
-    override fun simulationPeriodic() {/* Assume 20ms update rate, get battery voltage from WPILib */
+    override fun simulationPeriodic() {
+        /* Assume 20ms update rate, get battery voltage from WPILib */
         updateSimState(0.02, RobotController.getBatteryVoltage())
     }
 
@@ -202,33 +203,39 @@ class CommandSwerveDrivetrain : SwerveDrivetrain, Subsystem {
     private val driveVoltageRequest: SwerveVoltageRequest = SwerveVoltageRequest(true)
 
     private val m_driveSysIdRoutine: SysIdRoutine = SysIdRoutine(
-        SysIdRoutine.Config(null, null, null, ModifiedSignalLogger.logState()), SysIdRoutine.Mechanism(
+        SysIdRoutine.Config(null, null, null, ModifiedSignalLogger.logState()),
+        SysIdRoutine.Mechanism(
             { volts: Measure<Voltage?> ->
                 setControl(
                     driveVoltageRequest.withVoltage(
                         volts.`in`(
-                            Volts
-                        )
-                    )
+                            Volts,
+                        ),
+                    ),
                 )
-            }, null, this
-        )
+            },
+            null,
+            this,
+        ),
     )
 
     private val steerVoltageRequest: SwerveVoltageRequest = SwerveVoltageRequest(false)
 
     private val m_steerSysIdRoutine: SysIdRoutine = SysIdRoutine(
-        SysIdRoutine.Config(null, null, null, ModifiedSignalLogger.logState()), SysIdRoutine.Mechanism(
+        SysIdRoutine.Config(null, null, null, ModifiedSignalLogger.logState()),
+        SysIdRoutine.Mechanism(
             { volts: Measure<Voltage?> ->
                 setControl(
                     steerVoltageRequest.withVoltage(
                         volts.`in`(
-                            Volts
-                        )
-                    )
+                            Volts,
+                        ),
+                    ),
                 )
-            }, null, this
-        )
+            },
+            null,
+            this,
+        ),
     )
     override fun periodic() {
         /* Periodically try to apply the operator perspective */
@@ -239,10 +246,11 @@ class CommandSwerveDrivetrain : SwerveDrivetrain, Subsystem {
         if (!hasAppliedOperatorPerspective || DriverStation.isDisabled()) {
             DriverStation.getAlliance().ifPresent { allianceColor: Alliance ->
                 this.setOperatorPerspectiveForward(
-                    if (allianceColor == Alliance.Red)
+                    if (allianceColor == Alliance.Red) {
                         redAlliancePerspectiveRotation
-                    else
+                    } else {
                         blueAlliancePerspectiveRotation
+                    },
                 )
                 hasAppliedOperatorPerspective = true
             }
@@ -251,18 +259,24 @@ class CommandSwerveDrivetrain : SwerveDrivetrain, Subsystem {
 
     private val m_slipSysIdRoutine: SysIdRoutine = SysIdRoutine(
         SysIdRoutine.Config(
-            Volts.of(0.25).per(Seconds.of(1.0)), null, null, ModifiedSignalLogger.logState()
-        ), SysIdRoutine.Mechanism(
+            Volts.of(0.25).per(Seconds.of(1.0)),
+            null,
+            null,
+            ModifiedSignalLogger.logState(),
+        ),
+        SysIdRoutine.Mechanism(
             { volts: Measure<Voltage?> ->
                 setControl(
                     driveVoltageRequest.withVoltage(
                         volts.`in`(
-                            Volts
-                        )
-                    )
+                            Volts,
+                        ),
+                    ),
                 )
-            }, null, this
-        )
+            },
+            null,
+            this,
+        ),
     )
 
     fun runDriveQuasiTest(direction: SysIdRoutine.Direction?): Command {

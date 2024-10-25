@@ -65,20 +65,24 @@ class CommandXboxPS5Controller(port: Int) : CommandGenericHID(port) {
     fun leftBumper(loop: EventLoop? = CommandScheduler.getInstance().defaultButtonLoop): Trigger {
         return if (xbox!!) {
             m_hidx!!.leftBumper(loop)
-                .castTo<Trigger>(BiFunction<EventLoop, BooleanSupplier, Trigger> { loop: EventLoop?, condition: BooleanSupplier? ->
-                    Trigger(
-                        loop,
-                        condition
-                    )
-                })
+                .castTo<Trigger>(
+                    BiFunction<EventLoop, BooleanSupplier, Trigger> { loop: EventLoop?, condition: BooleanSupplier? ->
+                        Trigger(
+                            loop,
+                            condition,
+                        )
+                    },
+                )
         } else {
             m_hidp!!.L1(loop)
-                .castTo<Trigger>(BiFunction<EventLoop, BooleanSupplier, Trigger> { loop: EventLoop?, condition: BooleanSupplier? ->
-                    Trigger(
-                        loop,
-                        condition
-                    )
-                })
+                .castTo<Trigger>(
+                    BiFunction<EventLoop, BooleanSupplier, Trigger> { loop: EventLoop?, condition: BooleanSupplier? ->
+                        Trigger(
+                            loop,
+                            condition,
+                        )
+                    },
+                )
         }
     }
 
@@ -99,20 +103,24 @@ class CommandXboxPS5Controller(port: Int) : CommandGenericHID(port) {
     fun rightBumper(loop: EventLoop? = CommandScheduler.getInstance().defaultButtonLoop): Trigger {
         return if (xbox!!) {
             m_hidx!!.rightBumper(loop)
-                .castTo<Trigger>(BiFunction<EventLoop, BooleanSupplier, Trigger> { loop: EventLoop?, condition: BooleanSupplier? ->
-                    Trigger(
-                        loop,
-                        condition
-                    )
-                })
+                .castTo<Trigger>(
+                    BiFunction<EventLoop, BooleanSupplier, Trigger> { loop: EventLoop?, condition: BooleanSupplier? ->
+                        Trigger(
+                            loop,
+                            condition,
+                        )
+                    },
+                )
         } else {
             m_hidp!!.R1(loop)
-                .castTo<Trigger>(BiFunction<EventLoop, BooleanSupplier, Trigger> { loop: EventLoop?, condition: BooleanSupplier? ->
-                    Trigger(
-                        loop,
-                        condition
-                    )
-                })
+                .castTo<Trigger>(
+                    BiFunction<EventLoop, BooleanSupplier, Trigger> { loop: EventLoop?, condition: BooleanSupplier? ->
+                        Trigger(
+                            loop,
+                            condition,
+                        )
+                    },
+                )
         }
     }
 
@@ -134,20 +142,24 @@ class CommandXboxPS5Controller(port: Int) : CommandGenericHID(port) {
     fun leftStick(loop: EventLoop? = CommandScheduler.getInstance().defaultButtonLoop): Trigger {
         return if (xbox!!) {
             m_hidx!!.leftStick(loop)
-                .castTo<Trigger>(BiFunction<EventLoop, BooleanSupplier, Trigger> { loop: EventLoop?, condition: BooleanSupplier? ->
-                    Trigger(
-                        loop,
-                        condition
-                    )
-                })
+                .castTo<Trigger>(
+                    BiFunction<EventLoop, BooleanSupplier, Trigger> { loop: EventLoop?, condition: BooleanSupplier? ->
+                        Trigger(
+                            loop,
+                            condition,
+                        )
+                    },
+                )
         } else {
             m_hidp!!.L3(loop)
-                .castTo<Trigger>(BiFunction<EventLoop, BooleanSupplier, Trigger> { loop: EventLoop?, condition: BooleanSupplier? ->
-                    Trigger(
-                        loop,
-                        condition
-                    )
-                })
+                .castTo<Trigger>(
+                    BiFunction<EventLoop, BooleanSupplier, Trigger> { loop: EventLoop?, condition: BooleanSupplier? ->
+                        Trigger(
+                            loop,
+                            condition,
+                        )
+                    },
+                )
         }
     }
 
@@ -169,20 +181,24 @@ class CommandXboxPS5Controller(port: Int) : CommandGenericHID(port) {
     fun rightStick(loop: EventLoop? = CommandScheduler.getInstance().defaultButtonLoop): Trigger {
         return if (xbox!!) {
             m_hidx!!.rightStick(loop)
-                .castTo<Trigger>(BiFunction<EventLoop, BooleanSupplier, Trigger> { loop: EventLoop?, condition: BooleanSupplier? ->
-                    Trigger(
-                        loop,
-                        condition
-                    )
-                })
+                .castTo<Trigger>(
+                    BiFunction<EventLoop, BooleanSupplier, Trigger> { loop: EventLoop?, condition: BooleanSupplier? ->
+                        Trigger(
+                            loop,
+                            condition,
+                        )
+                    },
+                )
         } else {
             m_hidp!!.R3(loop)
-                .castTo<Trigger>(BiFunction<EventLoop, BooleanSupplier, Trigger> { loop: EventLoop?, condition: BooleanSupplier? ->
-                    Trigger(
-                        loop,
-                        condition
-                    )
-                })
+                .castTo<Trigger>(
+                    BiFunction<EventLoop, BooleanSupplier, Trigger> { loop: EventLoop?, condition: BooleanSupplier? ->
+                        Trigger(
+                            loop,
+                            condition,
+                        )
+                    },
+                )
         }
     }
 
@@ -203,20 +219,24 @@ class CommandXboxPS5Controller(port: Int) : CommandGenericHID(port) {
     fun a(loop: EventLoop? = CommandScheduler.getInstance().defaultButtonLoop): Trigger {
         return if (xbox!!) {
             m_hidx!!.a(loop)
-                .castTo<Trigger>(BiFunction<EventLoop, BooleanSupplier, Trigger> { loop: EventLoop?, condition: BooleanSupplier? ->
-                    Trigger(
-                        loop,
-                        condition
-                    )
-                })
+                .castTo<Trigger>(
+                    BiFunction<EventLoop, BooleanSupplier, Trigger> { loop: EventLoop?, condition: BooleanSupplier? ->
+                        Trigger(
+                            loop,
+                            condition,
+                        )
+                    },
+                )
         } else {
             m_hidp!!.cross(loop)
-                .castTo<Trigger>(BiFunction<EventLoop, BooleanSupplier, Trigger> { loop: EventLoop?, condition: BooleanSupplier? ->
-                    Trigger(
-                        loop,
-                        condition
-                    )
-                })
+                .castTo<Trigger>(
+                    BiFunction<EventLoop, BooleanSupplier, Trigger> { loop: EventLoop?, condition: BooleanSupplier? ->
+                        Trigger(
+                            loop,
+                            condition,
+                        )
+                    },
+                )
         }
     }
 
@@ -237,20 +257,24 @@ class CommandXboxPS5Controller(port: Int) : CommandGenericHID(port) {
     fun b(loop: EventLoop? = CommandScheduler.getInstance().defaultButtonLoop): Trigger {
         return if (xbox!!) {
             m_hidx!!.b(loop)
-                .castTo<Trigger>(BiFunction<EventLoop, BooleanSupplier, Trigger> { loop: EventLoop?, condition: BooleanSupplier? ->
-                    Trigger(
-                        loop,
-                        condition
-                    )
-                })
+                .castTo<Trigger>(
+                    BiFunction<EventLoop, BooleanSupplier, Trigger> { loop: EventLoop?, condition: BooleanSupplier? ->
+                        Trigger(
+                            loop,
+                            condition,
+                        )
+                    },
+                )
         } else {
             m_hidp!!.circle(loop)
-                .castTo<Trigger>(BiFunction<EventLoop, BooleanSupplier, Trigger> { loop: EventLoop?, condition: BooleanSupplier? ->
-                    Trigger(
-                        loop,
-                        condition
-                    )
-                })
+                .castTo<Trigger>(
+                    BiFunction<EventLoop, BooleanSupplier, Trigger> { loop: EventLoop?, condition: BooleanSupplier? ->
+                        Trigger(
+                            loop,
+                            condition,
+                        )
+                    },
+                )
         }
     }
 
@@ -271,20 +295,24 @@ class CommandXboxPS5Controller(port: Int) : CommandGenericHID(port) {
     fun x(loop: EventLoop? = CommandScheduler.getInstance().defaultButtonLoop): Trigger {
         return if (xbox!!) {
             m_hidx!!.x(loop)
-                .castTo<Trigger>(BiFunction<EventLoop, BooleanSupplier, Trigger> { loop: EventLoop?, condition: BooleanSupplier? ->
-                    Trigger(
-                        loop,
-                        condition
-                    )
-                })
+                .castTo<Trigger>(
+                    BiFunction<EventLoop, BooleanSupplier, Trigger> { loop: EventLoop?, condition: BooleanSupplier? ->
+                        Trigger(
+                            loop,
+                            condition,
+                        )
+                    },
+                )
         } else {
             m_hidp!!.square(loop)
-                .castTo<Trigger>(BiFunction<EventLoop, BooleanSupplier, Trigger> { loop: EventLoop?, condition: BooleanSupplier? ->
-                    Trigger(
-                        loop,
-                        condition
-                    )
-                })
+                .castTo<Trigger>(
+                    BiFunction<EventLoop, BooleanSupplier, Trigger> { loop: EventLoop?, condition: BooleanSupplier? ->
+                        Trigger(
+                            loop,
+                            condition,
+                        )
+                    },
+                )
         }
     }
 
@@ -305,20 +333,24 @@ class CommandXboxPS5Controller(port: Int) : CommandGenericHID(port) {
     fun y(loop: EventLoop? = CommandScheduler.getInstance().defaultButtonLoop): Trigger {
         return if (xbox!!) {
             m_hidx!!.y(loop)
-                .castTo<Trigger>(BiFunction<EventLoop, BooleanSupplier, Trigger> { loop: EventLoop?, condition: BooleanSupplier? ->
-                    Trigger(
-                        loop,
-                        condition
-                    )
-                })
+                .castTo<Trigger>(
+                    BiFunction<EventLoop, BooleanSupplier, Trigger> { loop: EventLoop?, condition: BooleanSupplier? ->
+                        Trigger(
+                            loop,
+                            condition,
+                        )
+                    },
+                )
         } else {
             m_hidp!!.triangle(loop)
-                .castTo<Trigger>(BiFunction<EventLoop, BooleanSupplier, Trigger> { loop: EventLoop?, condition: BooleanSupplier? ->
-                    Trigger(
-                        loop,
-                        condition
-                    )
-                })
+                .castTo<Trigger>(
+                    BiFunction<EventLoop, BooleanSupplier, Trigger> { loop: EventLoop?, condition: BooleanSupplier? ->
+                        Trigger(
+                            loop,
+                            condition,
+                        )
+                    },
+                )
         }
     }
 
@@ -339,20 +371,24 @@ class CommandXboxPS5Controller(port: Int) : CommandGenericHID(port) {
     fun start(loop: EventLoop? = CommandScheduler.getInstance().defaultButtonLoop): Trigger {
         return if (xbox!!) {
             m_hidx!!.start(loop)
-                .castTo<Trigger>(BiFunction<EventLoop, BooleanSupplier, Trigger> { loop: EventLoop?, condition: BooleanSupplier? ->
-                    Trigger(
-                        loop,
-                        condition
-                    )
-                })
+                .castTo<Trigger>(
+                    BiFunction<EventLoop, BooleanSupplier, Trigger> { loop: EventLoop?, condition: BooleanSupplier? ->
+                        Trigger(
+                            loop,
+                            condition,
+                        )
+                    },
+                )
         } else {
             m_hidp!!.options(loop)
-                .castTo<Trigger>(BiFunction<EventLoop, BooleanSupplier, Trigger> { loop: EventLoop?, condition: BooleanSupplier? ->
-                    Trigger(
-                        loop,
-                        condition
-                    )
-                })
+                .castTo<Trigger>(
+                    BiFunction<EventLoop, BooleanSupplier, Trigger> { loop: EventLoop?, condition: BooleanSupplier? ->
+                        Trigger(
+                            loop,
+                            condition,
+                        )
+                    },
+                )
         }
     }
 
@@ -373,20 +409,24 @@ class CommandXboxPS5Controller(port: Int) : CommandGenericHID(port) {
     fun back(loop: EventLoop? = CommandScheduler.getInstance().defaultButtonLoop): Trigger {
         return if (xbox!!) {
             m_hidx!!.back(loop)
-                .castTo<Trigger>(BiFunction<EventLoop, BooleanSupplier, Trigger> { loop: EventLoop?, condition: BooleanSupplier? ->
-                    Trigger(
-                        loop,
-                        condition
-                    )
-                })
+                .castTo<Trigger>(
+                    BiFunction<EventLoop, BooleanSupplier, Trigger> { loop: EventLoop?, condition: BooleanSupplier? ->
+                        Trigger(
+                            loop,
+                            condition,
+                        )
+                    },
+                )
         } else {
             m_hidp!!.create(loop)
-                .castTo<Trigger>(BiFunction<EventLoop, BooleanSupplier, Trigger> { loop: EventLoop?, condition: BooleanSupplier? ->
-                    Trigger(
-                        loop,
-                        condition
-                    )
-                })
+                .castTo<Trigger>(
+                    BiFunction<EventLoop, BooleanSupplier, Trigger> { loop: EventLoop?, condition: BooleanSupplier? ->
+                        Trigger(
+                            loop,
+                            condition,
+                        )
+                    },
+                )
         }
     }
 
@@ -419,24 +459,27 @@ class CommandXboxPS5Controller(port: Int) : CommandGenericHID(port) {
     @JvmOverloads
     fun leftTrigger(
         threshold: Double = 0.5,
-        loop: EventLoop = CommandScheduler.getInstance().defaultButtonLoop
+        loop: EventLoop = CommandScheduler.getInstance().defaultButtonLoop,
     ): Trigger {
         return if (xbox!!) {
             m_hidx!!.leftTrigger(threshold, loop)
-                .castTo<Trigger>(BiFunction<EventLoop, BooleanSupplier, Trigger> { loop: EventLoop?, condition: BooleanSupplier? ->
-                    Trigger(
-                        loop,
-                        condition
-                    )
-                })
+                .castTo<Trigger>(
+                    BiFunction<EventLoop, BooleanSupplier, Trigger> { loop: EventLoop?, condition: BooleanSupplier? ->
+                        Trigger(
+                            loop,
+                            condition,
+                        )
+                    },
+                )
         } else {
             BooleanEvent(loop) { m_hidp!!.l2Axis > threshold }.castTo<Trigger>(
                 BiFunction<EventLoop, BooleanSupplier, Trigger> { loop: EventLoop?, condition: BooleanSupplier? ->
                     Trigger(
                         loop,
-                        condition
+                        condition,
                     )
-                })
+                },
+            )
         }
     }
 
@@ -469,24 +512,27 @@ class CommandXboxPS5Controller(port: Int) : CommandGenericHID(port) {
     @JvmOverloads
     fun rightTrigger(
         threshold: Double = 0.5,
-        loop: EventLoop = CommandScheduler.getInstance().defaultButtonLoop
+        loop: EventLoop = CommandScheduler.getInstance().defaultButtonLoop,
     ): Trigger {
         return if (xbox!!) {
             m_hidx!!.rightTrigger(threshold, loop)
-                .castTo<Trigger>(BiFunction<EventLoop, BooleanSupplier, Trigger> { loop: EventLoop?, condition: BooleanSupplier? ->
-                    Trigger(
-                        loop,
-                        condition
-                    )
-                })
+                .castTo<Trigger>(
+                    BiFunction<EventLoop, BooleanSupplier, Trigger> { loop: EventLoop?, condition: BooleanSupplier? ->
+                        Trigger(
+                            loop,
+                            condition,
+                        )
+                    },
+                )
         } else {
             BooleanEvent(loop) { m_hidp!!.r2Axis > threshold }.castTo<Trigger>(
                 BiFunction<EventLoop, BooleanSupplier, Trigger> { loop: EventLoop?, condition: BooleanSupplier? ->
                     Trigger(
                         loop,
-                        condition
+                        condition,
                     )
-                })
+                },
+            )
         }
     }
 

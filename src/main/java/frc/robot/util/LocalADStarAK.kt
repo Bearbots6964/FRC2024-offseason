@@ -84,7 +84,8 @@ class LocalADStarAK : Pathfinder {
      * position of the path to properly avoid obstacles
      */
     override fun setDynamicObstacles(
-        obs: List<Pair<Translation2d, Translation2d>>, currentRobotPos: Translation2d,
+        obs: List<Pair<Translation2d, Translation2d>>,
+        currentRobotPos: Translation2d,
     ) {
         if (!Logger.hasReplaySource()) {
             io.adStar.setDynamicObstacles(obs, currentRobotPos)

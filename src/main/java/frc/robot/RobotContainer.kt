@@ -19,10 +19,10 @@ import edu.wpi.first.wpilibj2.command.Commands
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import edu.wpi.first.wpilibj2.command.button.Trigger
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
-import frc.robot.subsystems.vision.VisionSubsystem
 import frc.robot.generated.TunerConstants
 import frc.robot.subsystems.ArmSubsystem
 import frc.robot.subsystems.drive.CommandSwerveDrivetrain
+import frc.robot.subsystems.vision.VisionSubsystem
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser
 import java.util.function.Supplier
 import kotlin.math.atan2
@@ -47,7 +47,6 @@ class RobotContainer {
     var drivetrain: CommandSwerveDrivetrain = TunerConstants.DriveTrain // drivetrain
     val armSubsystem: ArmSubsystem = ArmSubsystem
     val visionSubsystem: VisionSubsystem = VisionSubsystem(drivetrain)
-
 
     // Slew Rate Limiters to limit acceleration of joystick inputs
     private val xLimiter: SlewRateLimiter = SlewRateLimiter(2.0)
@@ -89,10 +88,10 @@ class RobotContainer {
                     point.withModuleDirection(
                         Rotation2d(
                             -drv.leftY,
-                            -drv.leftX
-                        )
+                            -drv.leftX,
+                        ),
                     )
-                }
+                },
         )
 
         // reset the field-centric heading on start button press
@@ -103,15 +102,14 @@ class RobotContainer {
             Commands.runOnce({
                 MaxSpeed = TunerConstants.kSpeedAt12VoltsMps * TurtleSpeed
             })
-                .andThen({ AngularRate = TurtleAngularRate })
+                .andThen({ AngularRate = TurtleAngularRate }),
         )
         drv.leftBumper().onFalse(
             Commands.runOnce({
                 MaxSpeed = TunerConstants.kSpeedAt12VoltsMps * speedChooser.get()
             })
-                .andThen({ AngularRate = MaxAngularRate })
+                .andThen({ AngularRate = MaxAngularRate }),
         )
-
 
         if (Utils.isSimulation()) {
             drivetrain.seedFieldRelative(Pose2d(Translation2d(), Rotation2d.fromDegrees(0.0)))
@@ -139,10 +137,8 @@ class RobotContainer {
         // Drivetrain needs to be placed against a sturdy wall and test stopped immediately upon wheel slip
         drv.back().and(drv.pov(0)).whileTrue(drivetrain.runDriveSlipTest())
 
-
         drv.rightBumper().whileTrue(drivetrain.rotateToAngleDiff(visionSubsystem.getNoteCamAngle()))
         /* TODO make sure this works and probably also see if we can't get it to also move the robot forward a bit to center it w/ the arm */
-
     }
 
     init {
@@ -174,7 +170,7 @@ class RobotContainer {
     }
 
     val autoCommand: Command?
-        get() =/* First put the drivetrain into auto run mode, then run the auto */
+        get() = /* First put the drivetrain into auto run mode, then run the auto */
             autoChooser.get()
 
     private fun newControlStyle() {
@@ -222,6 +218,4 @@ class RobotContainer {
     private fun conditionX(joystick: Double, deadband: Double): Double {
         return xLimiter.calculate(MathUtil.applyDeadband(joystick, deadband))
     }
-
-
 }
