@@ -112,8 +112,6 @@ class RobotContainer {
                 .andThen({ AngularRate = MaxAngularRate })
         )
 
-        drv.leftBumper().onTrue(drivetrain.rotateToAngle(visionSubsystem.getNoteCamAngle()))
-        /* TODO make sure this works and probably also see if we can't get it to also move the robot forward a bit to center it w/ the arm */
 
         if (Utils.isSimulation()) {
             drivetrain.seedFieldRelative(Pose2d(Translation2d(), Rotation2d.fromDegrees(0.0)))
@@ -142,7 +140,9 @@ class RobotContainer {
         drv.back().and(drv.pov(0)).whileTrue(drivetrain.runDriveSlipTest())
 
 
-        drv.rightBumper().whileTrue(drivetrain.rotateToAngle(visionSubsystem.getNoteCamAngle()))
+        drv.rightBumper().whileTrue(drivetrain.rotateToAngleDiff(visionSubsystem.getNoteCamAngle()))
+        /* TODO make sure this works and probably also see if we can't get it to also move the robot forward a bit to center it w/ the arm */
+
     }
 
     init {
@@ -209,6 +209,7 @@ class RobotContainer {
         try {
             drivetrain.defaultCommand.cancel()
         } catch (_: Exception) {
+            DriverStation.reportWarning("RC: Failed to cancel default command", false)
         }
         drivetrain.defaultCommand = drivetrain.applyRequest(controlStyle!!).ignoringDisable(true)
     }
@@ -222,7 +223,5 @@ class RobotContainer {
         return xLimiter.calculate(MathUtil.applyDeadband(joystick, deadband))
     }
 
-    fun getAutonomousCommand(): Command? {
-        return null
-    }
+
 }

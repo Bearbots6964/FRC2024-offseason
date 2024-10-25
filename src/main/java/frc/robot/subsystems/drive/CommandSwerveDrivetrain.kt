@@ -3,34 +3,37 @@ package frc.robot.subsystems.drive
 import com.ctre.phoenix6.Utils
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrainConstants
+import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModuleConstants
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest
 import com.ctre.phoenix6.signals.NeutralModeValue
 import com.pathplanner.lib.auto.AutoBuilder
 import com.pathplanner.lib.commands.PathPlannerAuto
 import com.pathplanner.lib.controllers.PPHolonomicDriveController
-import com.pathplanner.lib.path.GoalEndState
 import com.pathplanner.lib.path.PathConstraints
 import com.pathplanner.lib.path.PathPlannerPath
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig
 import com.pathplanner.lib.util.PIDConstants
 import com.pathplanner.lib.util.ReplanningConfig
+import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.kinematics.ChassisSpeeds
 import edu.wpi.first.units.Measure
+import edu.wpi.first.units.Units
 import edu.wpi.first.units.Units.*
 import edu.wpi.first.units.Voltage
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.DriverStation.Alliance
 import edu.wpi.first.wpilibj.Notifier
 import edu.wpi.first.wpilibj.RobotController
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Subsystem
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
+import frc.robot.generated.TunerConstants
 import frc.robot.util.ModifiedSignalLogger
 import frc.robot.util.SwerveVoltageRequest
-import frc.robot.generated.TunerConstants
 import org.littletonrobotics.junction.AutoLogOutput
 import java.util.*
 import java.util.function.Supplier
@@ -46,6 +49,8 @@ class CommandSwerveDrivetrain : SwerveDrivetrain, Subsystem {
     private var driveBaseRadius = 0.0
     private var simNotifier: Notifier? = null
     private var lastSimTime = 0.0
+    private var thetaController: PIDController = PIDController(1.1, 0.0, 0.125) // TODO tune this
+    private var angleJoystickDeadbandRadius = 0.5
 
     /* Blue alliance sees forward as 0 degrees (toward red alliance wall) */
     private val blueAlliancePerspectiveRotation: Rotation2d = Rotation2d.fromDegrees(0.0)
@@ -69,6 +74,8 @@ class CommandSwerveDrivetrain : SwerveDrivetrain, Subsystem {
             }
         }
         configurePathPlanner()
+
+        SmartDashboard.putData(thetaController) // for tuning
     }
 
     constructor(driveTrainConstants: SwerveDrivetrainConstants, vararg modules: SwerveModuleConstants?) : super(
@@ -141,20 +148,18 @@ class CommandSwerveDrivetrain : SwerveDrivetrain, Subsystem {
         return AutoBuilder.pathfindThenFollowPath(path, constraints, 0.0)
     }
 
-    fun rotateToAngle(angle: Double): Command {
-        // this takes a lot of building up
-        // first get the current angle
-        val currentAngle = this.state.Pose.rotation.degrees
-        // then get the difference between the current angle and the target angle
-        val angleDifference = angle - currentAngle
-        // create a Pose2d
-        val targetPose = Pose2d(0.0, 0.0, Rotation2d.fromDegrees(angleDifference))
-        // and now the full thing
-        val path = PathPlannerPath(
-            PathPlannerPath.bezierFromPoses(targetPose), constraints, GoalEndState(0.0, Rotation2d(angleDifference))
-        )
-        // follow path command
-        return AutoBuilder.pathfindToPose(targetPose, constraints, 0.0, 0.0)
+    fun rotateToAngleDiff(angle: Double): Command {
+        return run {
+            // first get the current angle
+            val currentAngle = state.Pose.rotation.degrees
+            // then get the difference between the current angle and the target angle
+            val angleDifference = Units.Degree.of(angle - currentAngle).`in`(Units.Radian) // convert to radians
+            applyRequest {
+                SwerveRequest.FieldCentric()
+                    .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
+                    .withRotationalRate(thetaController.calculate(angleDifference, state.Pose.rotation.radians) * 2 * PI)
+            }
+        }
     }
 
     var constraints = PathConstraints(9.46, 2.0, 2 * PI, 4 * PI)
