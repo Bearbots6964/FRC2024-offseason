@@ -1,4 +1,4 @@
-package frc.robot.Util
+package frc.robot.util
 
 import com.ctre.phoenix6.SignalLogger
 import com.ctre.phoenix6.hardware.ParentDevice
