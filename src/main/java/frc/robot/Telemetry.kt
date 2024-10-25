@@ -2,7 +2,7 @@ package frc.robot
 
 import com.ctre.phoenix6.SignalLogger
 import com.ctre.phoenix6.Utils
-import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain
+import com.ctre.phoenix6.swerve.SwerveDrivetrain
 import com.pathplanner.lib.util.PathPlannerLogging
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.kinematics.SwerveModuleState
@@ -12,8 +12,7 @@ import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj.util.Color
 import edu.wpi.first.wpilibj.util.Color8Bit
-import org.littletonrobotics.junction.AutoLog
-import org.littletonrobotics.junction.AutoLogOutput
+
 
 class Telemetry
 /**
@@ -40,7 +39,6 @@ class Telemetry
     private val odomFreq: DoublePublisher = driveStats.getDoubleTopic("Odometry Frequency").publish()
 
     /* Keep a reference of the last pose to calculate the speeds */
-    @AutoLogOutput
     private var m_lastPose = Pose2d()
     private var lastTime = Utils.getCurrentTimeSeconds()
 

@@ -1,0 +1,59 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 7.597718350885419,
+        "y": 5.791750722924522
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 6.966935147079877,
+        "y": 4.648679864100817
+      },
+      "isLocked": false,
+      "linkedName": "Note 2"
+    },
+    {
+      "anchor": {
+        "x": 4.682254116110796,
+        "y": 3.649137985775972
+      },
+      "prevControl": {
+        "x": 6.424577281064219,
+        "y": 4.411597005178041
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Stage Drop-Off"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 1.0,
+      "rotationDegrees": -151.83374691591274
+    }
+  ],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -146.97939104347284
+  },
+  "reversed": false,
+  "folder": "Slightly Better Paths",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 0.0
+  },
+  "useDefaultConstraints": true
+}
