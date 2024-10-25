@@ -3,10 +3,11 @@ package frc.robot.subsystems.vision
 import edu.wpi.first.apriltag.AprilTagFields
 import edu.wpi.first.math.geometry.*
 import edu.wpi.first.wpilibj.DriverStation.Alliance
+import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.robot.subsystems.drive.CommandSwerveDrivetrain
-import frc.robot.util.RectanglePoseArea
+import frc.robot.Util.RectanglePoseArea
 import org.photonvision.EstimatedRobotPose
 import org.photonvision.PhotonCamera
 import org.photonvision.PhotonPoseEstimator
@@ -27,6 +28,7 @@ class VisionSubsystem(var drivetrain: CommandSwerveDrivetrain) : SubsystemBase()
     private var aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField()
     private var rightPhotonPoseEstimator = PhotonPoseEstimator(aprilTagFieldLayout, PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, rightCam, botToRightCamera)
     private var leftPhotonPoseEstimator = PhotonPoseEstimator(aprilTagFieldLayout, PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, leftCam, botToLeftCamera)
+    private val isSim = RobotBase.isSimulation()
 
     /** Creates a new Limelight.  */
     init {
@@ -50,18 +52,21 @@ class VisionSubsystem(var drivetrain: CommandSwerveDrivetrain) : SubsystemBase()
     }
 
     override fun periodic() {
-        val right = updateRight()
-        val left = updateLeft()
-        if (right != null) {
-            drivetrain.addVisionMeasurement(right.estimatedPose.toPose2d(), right.timestampSeconds)
-        }
-        if (left != null) {
-            drivetrain.addVisionMeasurement(left.estimatedPose.toPose2d(), left.timestampSeconds)
+        if(!isSim) {
+            val right = updateRight()
+            val left = updateLeft()
+            if (right != null) {
+                drivetrain.addVisionMeasurement(right.estimatedPose.toPose2d(), right.timestampSeconds)
+            }
+            if (left != null) {
+                drivetrain.addVisionMeasurement(left.estimatedPose.toPose2d(), left.timestampSeconds)
+            }
         }
     }
 
     fun getNoteCamAngle(): Double {
-        return noteCam.getLatestResult().getBestTarget().yaw
+        if (!isSim) return noteCam.getLatestResult().getBestTarget().yaw
+        else return 0.0
     }
 
     companion object {

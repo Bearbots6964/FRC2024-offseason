@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.PowerDistribution
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.CommandScheduler
-import frc.robot.util.LocalADStarAK
+import frc.robot.Util.LocalADStarAK
 import org.littletonrobotics.junction.LogFileUtil
 import org.littletonrobotics.junction.LoggedRobot
 import org.littletonrobotics.junction.Logger
