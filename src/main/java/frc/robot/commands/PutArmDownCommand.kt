@@ -18,8 +18,9 @@ class PutArmDownCommand(private val armSubsystem: ArmSubsystem) : Command() {
 
     override fun execute() {
         armSubsystem.extend(1.0)
-        if (SmartDashboard.getNumber("Arm Max Current Limit", maxLimit) != maxLimit)
+        if (SmartDashboard.getNumber("Arm Max Current Limit", maxLimit) != maxLimit) {
             maxLimit = SmartDashboard.getNumber("Arm Max Current Limit", maxLimit)
+        }
     }
 
     override fun isFinished(): Boolean {

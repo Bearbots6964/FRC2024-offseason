@@ -7,7 +7,6 @@ import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveControlParameters
 import com.ctre.phoenix6.swerve.SwerveModule
 import com.ctre.phoenix6.swerve.SwerveRequest
 
-
 class SwerveVoltageRequest : SwerveRequest {
     private val m_motionMagicControl: MotionMagicVoltage = MotionMagicVoltage(0.0, false, 0.0, 0, false, false, false, false)
     private val m_voltageOutControl: VoltageOut = VoltageOut(0.0)

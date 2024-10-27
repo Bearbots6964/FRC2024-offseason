@@ -37,14 +37,17 @@ class GoToNoteCommand(
     override fun execute() {
         try {
             commandSwerveDrivetrain.setControl(
-                drive.withVelocityX(-drivePid.calculate(visionSubsystem.getNoteCamPitch() * TunerConstants.kSpeedAt12VoltsMps.`in`(
-                    Units.MetersPerSecond)))
+                drive.withVelocityX(
+                    -drivePid.calculate(
+                        visionSubsystem.getNoteCamPitch() * TunerConstants.kSpeedAt12VoltsMps.`in`(
+                            Units.MetersPerSecond,
+                        ),
+                    ),
+                )
                     .withVelocityY(0.0).withRotationalDeadband(0.1).withDeadband(1.0)
-                    .withRotationalRate(anglePid.calculate(visionSubsystem.getNoteCamYaw()) * 2 * PI)
+                    .withRotationalRate(anglePid.calculate(visionSubsystem.getNoteCamYaw()) * 2 * PI),
             )
         } finally {}
-
-
     }
 
     override fun isFinished(): Boolean {
@@ -57,6 +60,5 @@ class GoToNoteCommand(
     }
 
     override fun end(interrupted: Boolean) {
-
     }
 }

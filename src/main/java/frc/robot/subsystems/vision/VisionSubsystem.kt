@@ -2,11 +2,7 @@ package frc.robot.subsystems.vision
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout
 import edu.wpi.first.apriltag.AprilTagFields
-import edu.wpi.first.math.Matrix
-import edu.wpi.first.math.VecBuilder
 import edu.wpi.first.math.geometry.*
-import edu.wpi.first.math.numbers.N1
-import edu.wpi.first.math.numbers.N3
 import edu.wpi.first.units.Units
 import edu.wpi.first.wpilibj.DriverStation.Alliance
 import edu.wpi.first.wpilibj.RobotBase
@@ -22,7 +18,6 @@ import java.util.*
 import kotlin.jvm.optionals.getOrNull
 import kotlin.math.abs
 
-
 object VisionSubsystem : SubsystemBase() {
     var alliance: Alliance? = null
     private val leftCam = PhotonCamera("Left Camera")
@@ -30,11 +25,11 @@ object VisionSubsystem : SubsystemBase() {
     private val noteCam = PhotonCamera("ShitCam")
     private val botToLeftCamera = Transform3d(
         Translation3d(-2.25, 11.75, 7.5),
-        Rotation3d(Units.Degree.of(10.0).`in`(Units.Radian), 0.0, 0.0)
+        Rotation3d(Units.Degree.of(10.0).`in`(Units.Radian), 0.0, 0.0),
     ) // TODO get this value
     private val botToRightCamera = Transform3d(
         Translation3d(2.25, -11.75, 7.5),
-        Rotation3d(Units.Degree.of(-10.0).`in`(Units.Radian), 0.0, 0.0)
+        Rotation3d(Units.Degree.of(-10.0).`in`(Units.Radian), 0.0, 0.0),
     ) // TODO get this value
     private var enable = false
     private var trust = false
@@ -47,7 +42,6 @@ object VisionSubsystem : SubsystemBase() {
     private var leftPhotonPoseEstimator = PhotonPoseEstimator(aprilTagFieldLayout, PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, leftCam, botToLeftCamera)
     private val isSim = RobotBase.isSimulation()
 
-
     /** Creates a new Limelight.  */
     init {
         rightPhotonPoseEstimator.setMultiTagFallbackStrategy(PhotonPoseEstimator.PoseStrategy.LOWEST_AMBIGUITY)
@@ -57,21 +51,17 @@ object VisionSubsystem : SubsystemBase() {
         SmartDashboard.putNumber("Limelight Error", distanceError.toDouble())
     }
 
-
-
-
     /**
      * Calculates standard deviations for the right camera based on the number of targets detected. Heuristic.
      */
     private fun updateLeftEstimationStdDevs(
         visionEst: Optional<EstimatedRobotPose>,
-        targets: List<PhotonTrackedTarget>) {
-
+        targets: List<PhotonTrackedTarget>,
+    ) {
     }
 
     // singleton class
     val instance: VisionSubsystem = VisionSubsystem
-
 
     fun useLimelight(enable: Boolean) {
         this.enable = enable
@@ -82,27 +72,33 @@ object VisionSubsystem : SubsystemBase() {
     }
 
     override fun periodic() {
-
     }
 
     fun getNoteCamYaw(): Double {
         try {
             if (!isSim) {
-                return if (noteCam.getLatestResult().getBestTarget() != null) noteCam.getLatestResult()
-                    .getBestTarget().yaw else 0.0
+                return if (noteCam.getLatestResult().getBestTarget() != null) {
+                    noteCam.getLatestResult()
+                        .getBestTarget().yaw
+                } else {
+                    0.0
+                }
             } else {
                 return 0.0
             }
         } finally {
-
         }
     }
 
     fun getNoteCamPitch(): Double {
         try {
             if (!isSim) {
-                return if (noteCam.getLatestResult().getBestTarget() != null) noteCam.getLatestResult()
-                    .getBestTarget().pitch else 0.0
+                return if (noteCam.getLatestResult().getBestTarget() != null) {
+                    noteCam.getLatestResult()
+                        .getBestTarget().pitch
+                } else {
+                    0.0
+                }
             } else {
                 return 0.0
             }
@@ -126,7 +122,7 @@ object VisionSubsystem : SubsystemBase() {
         }
     }
 
-        private val field = RectanglePoseArea(Translation2d(0.0, 0.0), Translation2d(16.54, 8.02))
+    private val field = RectanglePoseArea(Translation2d(0.0, 0.0), Translation2d(16.54, 8.02))
 
     @JvmStatic
     fun updateLeft(): EstimatedRobotPose? {
@@ -145,6 +141,4 @@ object VisionSubsystem : SubsystemBase() {
     fun getRightResult(): PhotonPipelineResult? {
         return rightCam.latestResult
     }
-
-
 }

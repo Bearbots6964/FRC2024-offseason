@@ -6,7 +6,6 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX
 import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration
 import edu.wpi.first.math.controller.ArmFeedforward
 import edu.wpi.first.math.controller.PIDController
-import edu.wpi.first.networktables.GenericEntry
 import edu.wpi.first.networktables.NetworkTableEntry
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.Command
@@ -80,5 +79,4 @@ class ArmSubsystem : Subsystem {
 
     fun getSupplyCurrent(): Double = motor.supplyCurrent
     fun getOutputCurrent(): Double = motor.statorCurrent
-
 }

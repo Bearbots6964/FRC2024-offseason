@@ -66,8 +66,8 @@ class RobotContainer {
         NamedCommands.registerCommands(
             mapOf(
                 "extendArm" to Commands.run({ armSubsystem.extend(1.0) }, armSubsystem),
-                "retractArm" to Commands.run ({ armSubsystem.retract(1.0) }, armSubsystem),
-            )
+                "retractArm" to Commands.run({ armSubsystem.retract(1.0) }, armSubsystem),
+            ),
         )
     }
 
@@ -82,23 +82,27 @@ class RobotContainer {
 
         armSubsystem.defaultCommand = armSubsystem.getCommand {
             MathUtil.applyDeadband(
-                joystick.rightTriggerAxis - joystick.leftTriggerAxis, 0.1
+                joystick.rightTriggerAxis - joystick.leftTriggerAxis, 0.1,
             )
         }
 
-
         joystick.a().whileTrue(drivetrain.applyRequest { brake })
-        joystick.b().whileTrue(drivetrain.applyRequest {
-            point.withModuleDirection(
-                Rotation2d(
-                    -joystick.leftY, -joystick.leftX
+        joystick.b().whileTrue(
+            drivetrain.applyRequest {
+                point.withModuleDirection(
+                    Rotation2d(
+                        -joystick.leftY,
+                        -joystick.leftX,
+                    ),
                 )
-            )
-        })
-
-        joystick.pov(0).whileTrue(drivetrain.applyRequest { forwardStraight.withVelocityX(0.5).withVelocityY(0.0) }
+            },
         )
-        joystick.pov(180).whileTrue(drivetrain.applyRequest { forwardStraight.withVelocityX(-0.5).withVelocityY(0.0) }
+
+        joystick.pov(0).whileTrue(
+            drivetrain.applyRequest { forwardStraight.withVelocityX(0.5).withVelocityY(0.0) },
+        )
+        joystick.pov(180).whileTrue(
+            drivetrain.applyRequest { forwardStraight.withVelocityX(-0.5).withVelocityY(0.0) },
         )
 
         // Run SysId routines when holding back/start and X/Y.
@@ -121,6 +125,6 @@ class RobotContainer {
     }
 
     val autonomousCommand: Command
-        get() =/* First put the drivetrain into auto run mode, then run the auto */
+        get() = /* First put the drivetrain into auto run mode, then run the auto */
             autoChooser.selected
 }

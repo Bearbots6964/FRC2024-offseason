@@ -54,9 +54,10 @@ object TunerConstants {
             CurrentLimitsConfigs() // Swerve azimuth does not require much torque output, so we can set a relatively low
                 // stator current limit to help avoid brownouts without impacting performance.
                 .withStatorCurrentLimit(Amps.of(60.0))
-                .withStatorCurrentLimitEnable(true)
+                .withStatorCurrentLimitEnable(true),
         )
     val cancoderInitialConfigs: CANcoderConfiguration = CANcoderConfiguration()
+
     // Configs for the Pigeon 2; leave this null to skip applying Pigeon 2 configs
     val pigeonConfigs: Pigeon2Configuration? = null
 
@@ -70,7 +71,7 @@ object TunerConstants {
 
     private const val kDriveGearRatio = 6.746031746031747
     private const val kSteerGearRatio = 21.428571428571427
-    private val kWheelRadius: Distance = edu.wpi.first.units.Units.Inches.of( 4.0)
+    private val kWheelRadius: Distance = edu.wpi.first.units.Units.Inches.of(4.0)
 
     private const val kInvertLeftSide = false
     private const val kInvertRightSide = true
@@ -206,7 +207,11 @@ object TunerConstants {
      */
     fun createDrivetrain(): CommandSwerveDrivetrain {
         return CommandSwerveDrivetrain(
-            DrivetrainConstants, FrontLeft, FrontRight, BackLeft, BackRight
+            DrivetrainConstants,
+            FrontLeft,
+            FrontRight,
+            BackLeft,
+            BackRight,
         )
     }
 }

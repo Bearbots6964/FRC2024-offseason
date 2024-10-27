@@ -3,17 +3,13 @@
 // the WPILib BSD license file in the root directory of this project.
 package frc.robot
 
-import com.ctre.phoenix6.SignalLogger
 import com.pathplanner.lib.commands.PathfindingCommand
-import com.pathplanner.lib.pathfinding.Pathfinding
 import edu.wpi.first.wpilibj.DriverStation
-import edu.wpi.first.wpilibj.IterativeRobotBase
 import edu.wpi.first.wpilibj.PowerDistribution
 import edu.wpi.first.wpilibj.TimedRobot
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.CommandScheduler
-
 
 class Robot : TimedRobot() {
     private var m_autonomousCommand: Command? = null
@@ -21,8 +17,6 @@ class Robot : TimedRobot() {
     private var m_robotContainer: RobotContainer? = null
 
     override fun robotInit() {
-
-
 //        if (isReal()) {
         PowerDistribution(1, PowerDistribution.ModuleType.kRev) // Enables power distribution logging
 //        }
