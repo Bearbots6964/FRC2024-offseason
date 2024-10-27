@@ -1,50 +1,41 @@
-package frc.robot.util
+package frc.robot.Util
 
 import com.ctre.phoenix6.StatusCode
 import com.ctre.phoenix6.controls.MotionMagicVoltage
 import com.ctre.phoenix6.controls.VoltageOut
-import com.ctre.phoenix6.mechanisms.swerve.SwerveModule
-import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest
-import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest.SwerveControlRequestParameters
+import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveControlParameters
+import com.ctre.phoenix6.swerve.SwerveModule
+import com.ctre.phoenix6.swerve.SwerveRequest
 
-class SwerveVoltageRequest(private var driveType: Boolean) : SwerveRequest {
-    private val motionMagicControl: MotionMagicVoltage =
-        MotionMagicVoltage(
-            /* Position = */
-            0.0,
-            /* EnableFOC = */
-            false,
-            /* FeedForward = */
-            0.0,
-            /* Slot = */
-            0,
-            /* OverrideBrakeDurNeutral = */
-            false,
-            /* LimitForwardMotion = */
-            false,
-            /* LimitReverseMotion = */
-            false,
-        )
-    private val voltageOutControl: VoltageOut = VoltageOut(0.0)
-    private var targetVoltage: Double = 0.0
+class SwerveVoltageRequest : SwerveRequest {
+    private val m_motionMagicControl: MotionMagicVoltage = MotionMagicVoltage(0.0, false, 0.0, 0, false, false, false, false)
+    private val m_voltageOutControl: VoltageOut = VoltageOut(0.0)
 
-    override fun apply(
-        parameters: SwerveControlRequestParameters,
-        vararg modulesToApply: SwerveModule,
-    ): StatusCode {
-        for (module in modulesToApply) {
-            if (driveType) {
+    private var m_targetVoltage: Double = 0.0
+    private var m_driveType: Boolean = true
+
+    constructor(driveType: Boolean) {
+        m_driveType = driveType
+    }
+
+    constructor() {
+        m_driveType = true
+    }
+
+    override fun apply(parameters: SwerveControlParameters, vararg modulesToApply: SwerveModule): StatusCode {
+        for (module: SwerveModule in modulesToApply) {
+            if (m_driveType) {
                 // Command steer motor to zero
-                module.steerMotor.setControl(motionMagicControl)
+                module.getSteerMotor().setControl(m_motionMagicControl)
 
                 // Command drive motor to voltage
-                module.driveMotor.setControl(voltageOutControl.withOutput(targetVoltage))
+                module.getDriveMotor().setControl(m_voltageOutControl.withOutput(m_targetVoltage))
             } else {
                 // Command steer motor to voltage
-                module.steerMotor.setControl(voltageOutControl.withOutput(targetVoltage))
+                module.getSteerMotor().setControl(m_voltageOutControl.withOutput(m_targetVoltage))
 
                 // Command drive motor to zero
-                module.driveMotor.setControl(motionMagicControl)
+                module.getDriveMotor().setControl(m_motionMagicControl)
             }
         }
 
@@ -52,12 +43,12 @@ class SwerveVoltageRequest(private var driveType: Boolean) : SwerveRequest {
     }
 
     /**
+     *
      * @param targetVoltage Voltage for all modules to target
      * @return
      */
     fun withVoltage(targetVoltage: Double): SwerveVoltageRequest {
-        this.targetVoltage = targetVoltage
-
+        this.m_targetVoltage = targetVoltage
         return this
     }
 }
