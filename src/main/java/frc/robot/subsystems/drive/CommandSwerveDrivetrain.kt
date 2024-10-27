@@ -34,7 +34,7 @@ import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Subsystem
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism
-import frc.robot.Util.RectanglePoseArea
+import frc.robot.util.RectanglePoseArea
 import frc.robot.subsystems.vision.VisionSubsystem
 import java.util.function.DoubleSupplier
 import java.util.function.Supplier
@@ -290,8 +290,6 @@ class CommandSwerveDrivetrain : SwerveDrivetrain, Subsystem {
         }
 
 
-        // update the drivetrain odometry
-        SwerveDriveOdometry.
     }
 
     private fun startSimThread() {
