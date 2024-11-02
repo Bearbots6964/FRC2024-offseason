@@ -16,7 +16,7 @@ class Robot : TimedRobot() {
 
     private var m_robotContainer: RobotContainer? = null
 
-    override fun robotInit() {
+    init {
 //        if (isReal()) {
         PowerDistribution(1, PowerDistribution.ModuleType.kRev) // Enables power distribution logging
 //        }
@@ -37,7 +37,7 @@ class Robot : TimedRobot() {
 // Logger.disableDeterministicTimestamps() // See "Deterministic Timestamps" in the "Understanding Data Flow" page
         m_robotContainer = RobotContainer()
 
-        m_robotContainer!!.drivetrain.daqThread.setThreadPriority(99)
+        // m_robotContainer!!.drivetrain.OdometryThread().setThreadPriority(Thread.MAX_PRIORITY)
 
         DriverStation.silenceJoystickConnectionWarning(true)
 

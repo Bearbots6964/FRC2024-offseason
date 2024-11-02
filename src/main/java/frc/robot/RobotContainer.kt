@@ -113,7 +113,7 @@ class RobotContainer {
         joystick.start().and(joystick.x()).whileTrue(drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kReverse))
 
         // reset the field-centric heading on left bumper press
-        joystick.leftBumper().onTrue(drivetrain.runOnce { drivetrain.seedFieldRelative() })
+        joystick.leftBumper().onTrue(drivetrain.runOnce { drivetrain::resetPose })
 
         joystick.rightBumper().whileTrue(goToNoteCommand.andThen(putArmDownCommand))
 
