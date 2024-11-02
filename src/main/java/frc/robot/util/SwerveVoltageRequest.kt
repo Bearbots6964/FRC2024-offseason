@@ -1,4 +1,4 @@
-package frc.robot.Util
+package frc.robot.util
 
 import com.ctre.phoenix6.StatusCode
 import com.ctre.phoenix6.controls.MotionMagicVoltage
