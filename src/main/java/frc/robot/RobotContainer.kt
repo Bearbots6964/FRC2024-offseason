@@ -17,13 +17,12 @@ import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Commands
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
-import frc.robot.commands.GoToNoteCommand
 import frc.robot.commands.PutArmDownCommand
 import frc.robot.generated.TunerConstants
 import frc.robot.generated.TunerConstants.createDrivetrain
 import frc.robot.subsystems.ArmSubsystem
 import frc.robot.subsystems.drive.CommandSwerveDrivetrain
-import frc.robot.subsystems.vision.VisionSubsystem
+import frc.robot.subsystems.vision.BetterVisionSubsystem
 
 class RobotContainer {
     private val MaxSpeed =
@@ -39,9 +38,8 @@ class RobotContainer {
     val drivetrain: CommandSwerveDrivetrain = createDrivetrain()
 
     val armSubsystem: ArmSubsystem = ArmSubsystem()
-    val visionSubsystem: VisionSubsystem = VisionSubsystem.instance
+    val visionSubsystem: BetterVisionSubsystem = BetterVisionSubsystem()
 
-    val goToNoteCommand = GoToNoteCommand(drivetrain, visionSubsystem)
     val putArmDownCommand = PutArmDownCommand(armSubsystem)
 
     /* Setting up bindings for necessary control of the swerve drive platform */
@@ -115,7 +113,6 @@ class RobotContainer {
         // reset the field-centric heading on left bumper press
         joystick.leftBumper().onTrue(drivetrain.runOnce { drivetrain::resetPose })
 
-        joystick.rightBumper().whileTrue(goToNoteCommand.andThen(putArmDownCommand))
 
         drivetrain.registerTelemetry { state: SwerveDriveState? ->
             if (state != null) {
@@ -127,4 +124,26 @@ class RobotContainer {
     val autonomousCommand: Command
         get() = /* First put the drivetrain into auto run mode, then run the auto */
             autoChooser.selected
+
+
+    fun updatePoseEstimation() {
+        var visionEst = visionSubsystem.leftEstimatedGlobalPose
+        visionEst.ifPresent {
+            est ->
+            run {
+                var leftEstStdDevs = visionSubsystem.leftEstimationStdDevs
+
+                drivetrain.addVisionMeasurement(est.estimatedPose.toPose2d(), est.timestampSeconds, leftEstStdDevs)
+            }
+        }
+        visionEst = visionSubsystem.rightEstimatedGlobalPose
+        visionEst.ifPresent {
+                est ->
+            run {
+                var rightEstStdDevs = visionSubsystem.rightEstimationStdDevs
+
+                drivetrain.addVisionMeasurement(est.estimatedPose.toPose2d(), est.timestampSeconds, rightEstStdDevs)
+            }
+        }
+    }
 }

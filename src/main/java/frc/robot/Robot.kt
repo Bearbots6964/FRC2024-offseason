@@ -16,6 +16,8 @@ class Robot : TimedRobot() {
 
     private var m_robotContainer: RobotContainer? = null
 
+
+
     init {
 //        if (isReal()) {
         PowerDistribution(1, PowerDistribution.ModuleType.kRev) // Enables power distribution logging
@@ -48,6 +50,7 @@ class Robot : TimedRobot() {
 
     override fun robotPeriodic() {
         CommandScheduler.getInstance().run()
+        m_robotContainer!!.updatePoseEstimation()
     }
 
     override fun disabledInit() {}
@@ -87,4 +90,10 @@ class Robot : TimedRobot() {
     override fun testExit() {}
 
     override fun simulationPeriodic() {}
+
+    companion object {
+        fun sim(): Boolean {
+            return  isSimulation()
+        }
+    }
 }

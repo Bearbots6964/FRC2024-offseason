@@ -20,7 +20,6 @@ import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.math.geometry.Translation3d
 import edu.wpi.first.math.kinematics.ChassisSpeeds
-import edu.wpi.first.math.kinematics.SwerveDriveOdometry
 import edu.wpi.first.math.numbers.N1
 import edu.wpi.first.math.numbers.N3
 import edu.wpi.first.units.Units
@@ -29,13 +28,15 @@ import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.DriverStation.Alliance
 import edu.wpi.first.wpilibj.Notifier
 import edu.wpi.first.wpilibj.RobotController
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
+import edu.wpi.first.wpilibj.smartdashboard.Field2d
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Subsystem
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism
 import frc.robot.util.RectanglePoseArea
-import frc.robot.subsystems.vision.VisionSubsystem
 import java.util.function.DoubleSupplier
 import java.util.function.Supplier
 import kotlin.math.PI
@@ -248,8 +249,19 @@ class CommandSwerveDrivetrain : SwerveDrivetrain, Subsystem {
         return m_sysIdRoutineToApply.dynamic(direction)
     }
 
+//    var rightConfidence = SmartDashboard.getEntry("Right Confidence")
+//
+//    var leftConfidence = SmartDashboard.getEntry("Left Confidence")
+//
+//    var rightField = Field2d()
+//    var leftField = Field2d()
     init {
         OdometryThread().start() // shrug
+        SmartDashboard.putNumber("Left Confidence", 0.0)
+        SmartDashboard.putNumber("Right Confidence", 0.0)
+
+//        Shuffleboard.getTab("stuff").add("left field", {leftField})
+//        Shuffleboard.getTab("stuff").add("right field", {rightField})
     }
 
     val field: RectanglePoseArea = RectanglePoseArea(Translation2d(0.0, 0.0), Translation2d(16.54, 8.02))
@@ -271,26 +283,46 @@ class CommandSwerveDrivetrain : SwerveDrivetrain, Subsystem {
             }
         }
 
-        var left = VisionSubsystem.instance.updateLeft()
-        var right = VisionSubsystem.instance.updateRight()
 
-        if (left !== null) {
-            var dist = VisionSubsystem.instance.getLeftResult()?.bestTarget?.bestCameraToTarget?.translation?.getDistance(Translation3d())
-            var confidence = 1 - ((dist!! - 1) / 6) // 1 - ((dist - min) / range)
-            if(field.isPoseWithinArea(left.estimatedPose.toPose2d())) {
-                addVisionMeasurement(left.estimatedPose.toPose2d(), left.timestampSeconds, VecBuilder.fill(confidence, confidence, 0.01)) // [x, y, theta]
-            }
-        }
-        if (right !== null) {
-            var dist = VisionSubsystem.instance.getRightResult()?.bestTarget?.bestCameraToTarget?.translation?.getDistance(Translation3d())
-            var confidence = 1 - ((dist!! - 1) / 6) // 1 - ((dist - min) / range)
-            if(field.isPoseWithinArea(right.estimatedPose.toPose2d())) {
-                addVisionMeasurement(right.estimatedPose.toPose2d(), right.timestampSeconds, VecBuilder.fill(confidence, confidence, 0.01)) // [x, y, theta]
-            }
-        }
+//        if (VisionSubsystem.instance.getLeftResult().hasTargets()) {
+//            var left = VisionSubsystem.instance.updateLeft()
+//            var dist = VisionSubsystem.instance.getLeftResult().bestTarget.bestCameraToTarget.translation.getDistance(Translation3d())
+//
+//            var confidence = 1 - ((dist!! - 1) / 6) // 1 - ((dist - min) / range)
+//            leftConfidence.setNumber(confidence)
+//            if (left != null) {
+//                if(field.isPoseWithinArea(left.estimatedPose.toPose2d())) {
+//                    // addVisionMeasurement(left.estimatedPose.toPose2d(), left.timestampSeconds, VecBuilder.fill(confidence, confidence, 0.01)) // [x, y, theta]
+//                    addVisionMeasurement(left.estimatedPose.toPose2d(), left.timestampSeconds)
+//                    leftField.robotPose = left.estimatedPose.toPose2d()
+//                    println("left: " + left.estimatedPose.toPose2d())
+//
+//
+//                }
+//            }
+//        }
+//        if (VisionSubsystem.instance.getRightResult().hasTargets()) {
+//            var right = VisionSubsystem.instance.updateRight()
+//            var dist = VisionSubsystem.instance.getRightResult()?.bestTarget?.bestCameraToTarget?.translation?.getDistance(Translation3d())
+//            var confidence = 1 - ((dist!! - 1) / 6) // 1 - ((dist - min) / range)
+//            rightConfidence.setNumber(confidence)
+//            if (right != null) {
+//                if(field.isPoseWithinArea(right.estimatedPose.toPose2d())) {
+//                    //addVisionMeasurement(right.estimatedPose.toPose2d(), right.timestampSeconds, VecBuilder.fill(confidence, confidence, 0.01)) // [x, y, theta]
+//                    addVisionMeasurement(right.estimatedPose.toPose2d(), right.timestampSeconds)
+//
+//                    rightField.robotPose = right.estimatedPose.toPose2d()
+//                    println("right: " + right.estimatedPose.toPose2d())
+//                }
+//            }
+//        }
 
 
     }
+
+//    fun addVisionMeasurement(pose: Pose2d, timestamp: Double, stdDevs: Unit) {
+//        addVisionMeasurement(pose, timestamp)
+//    }
 
     private fun startSimThread() {
         m_lastSimTime = Utils.getCurrentTimeSeconds()
