@@ -44,7 +44,7 @@ import org.photonvision.simulation.VisionSystemSim
 import org.photonvision.targeting.PhotonTrackedTarget
 import java.util.*
 
-class BetterVisionSubsystem: SubsystemBase() {
+class BetterVisionSubsystem : SubsystemBase() {
     private val leftCamera = PhotonCamera("Left Camera")
     private val rightCamera = PhotonCamera("Right Camera")
 
@@ -70,6 +70,7 @@ class BetterVisionSubsystem: SubsystemBase() {
      */
     var leftEstimationStdDevs: Matrix<N3, N1>? = null
         private set
+
     /**
      * Returns the latest standard deviations of the estimated pose from [ ][.getEstimatedGlobalPose], for use with [ ]. This should
      * only be used when there are targets visible.
@@ -141,7 +142,8 @@ class BetterVisionSubsystem: SubsystemBase() {
                         },
                         {
                             leftSimDebugField!!.getObject("VisionEstimation").setPoses()
-                        })
+                        },
+                    )
                 }
             }
             return visionEst
@@ -172,7 +174,8 @@ class BetterVisionSubsystem: SubsystemBase() {
                         },
                         {
                             rightSimDebugField!!.getObject("VisionEstimation").setPoses()
-                        })
+                        },
+                    )
                 }
             }
             return visionEst
@@ -186,7 +189,8 @@ class BetterVisionSubsystem: SubsystemBase() {
      * @param targets All targets in this camera frame
      */
     private fun updateLeftEstimationStdDevs(
-        estimatedPose: Optional<EstimatedRobotPose>, targets: List<PhotonTrackedTarget>,
+        estimatedPose: Optional<EstimatedRobotPose>,
+        targets: List<PhotonTrackedTarget>,
     ) {
         if (estimatedPose.isEmpty) {
             // No pose input. Default to single-tag std devs
@@ -219,12 +223,15 @@ class BetterVisionSubsystem: SubsystemBase() {
                 // Decrease std devs if multiple targets are visible
                 if (numTags > 1) estStdDevs = kMultiTagStdDevs
                 // Increase std devs based on (average) distance
-                estStdDevs = if (numTags == 1 && avgDist > 4) VecBuilder.fill(
-                    Double.MAX_VALUE,
-                    Double.MAX_VALUE,
-                    Double.MAX_VALUE
-                )
-                else estStdDevs.times(1 + (avgDist * avgDist / 30))
+                estStdDevs = if (numTags == 1 && avgDist > 4) {
+                    VecBuilder.fill(
+                        Double.MAX_VALUE,
+                        Double.MAX_VALUE,
+                        Double.MAX_VALUE,
+                    )
+                } else {
+                    estStdDevs.times(1 + (avgDist * avgDist / 30))
+                }
                 leftEstimationStdDevs = estStdDevs
             }
         }
@@ -238,7 +245,8 @@ class BetterVisionSubsystem: SubsystemBase() {
      * @param targets All targets in this camera frame
      */
     private fun updateRightEstimationStdDevs(
-        estimatedPose: Optional<EstimatedRobotPose>, targets: List<PhotonTrackedTarget>,
+        estimatedPose: Optional<EstimatedRobotPose>,
+        targets: List<PhotonTrackedTarget>,
     ) {
         if (estimatedPose.isEmpty) {
             // No pose input. Default to single-tag std devs
@@ -271,12 +279,15 @@ class BetterVisionSubsystem: SubsystemBase() {
                 // Decrease std devs if multiple targets are visible
                 if (numTags > 1) estStdDevs = kMultiTagStdDevs
                 // Increase std devs based on (average) distance
-                estStdDevs = if (numTags == 1 && avgDist > 4) VecBuilder.fill(
-                    Double.MAX_VALUE,
-                    Double.MAX_VALUE,
-                    Double.MAX_VALUE
-                )
-                else estStdDevs.times(1 + (avgDist * avgDist / 30))
+                estStdDevs = if (numTags == 1 && avgDist > 4) {
+                    VecBuilder.fill(
+                        Double.MAX_VALUE,
+                        Double.MAX_VALUE,
+                        Double.MAX_VALUE,
+                    )
+                } else {
+                    estStdDevs.times(1 + (avgDist * avgDist / 30))
+                }
                 rightEstimationStdDevs = estStdDevs
             }
         }
@@ -306,7 +317,4 @@ class BetterVisionSubsystem: SubsystemBase() {
             if (!Robot.sim()) return null
             return rightVisionSim!!.debugField
         }
-
-
-
 }
