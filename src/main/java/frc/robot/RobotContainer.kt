@@ -113,7 +113,6 @@ class RobotContainer {
         // reset the field-centric heading on left bumper press
         joystick.leftBumper().onTrue(drivetrain.runOnce { drivetrain::resetPose })
 
-
         drivetrain.registerTelemetry { state: SwerveDriveState? ->
             if (state != null) {
                 logger.telemeterize(state)
@@ -125,11 +124,10 @@ class RobotContainer {
         get() = /* First put the drivetrain into auto run mode, then run the auto */
             autoChooser.selected
 
-
     fun updatePoseEstimation() {
         var visionEst = visionSubsystem.leftEstimatedGlobalPose
         visionEst.ifPresent {
-            est ->
+                est ->
             run {
                 var leftEstStdDevs = visionSubsystem.leftEstimationStdDevs
 

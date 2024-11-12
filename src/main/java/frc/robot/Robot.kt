@@ -16,8 +16,6 @@ class Robot : TimedRobot() {
 
     private var m_robotContainer: RobotContainer? = null
 
-
-
     init {
 //        if (isReal()) {
         PowerDistribution(1, PowerDistribution.ModuleType.kRev) // Enables power distribution logging
@@ -93,7 +91,7 @@ class Robot : TimedRobot() {
 
     companion object {
         fun sim(): Boolean {
-            return  isSimulation()
+            return isSimulation()
         }
     }
 }
